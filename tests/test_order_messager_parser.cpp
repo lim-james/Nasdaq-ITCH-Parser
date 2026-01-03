@@ -39,3 +39,31 @@ TEST(OrderMessageParser, ValidOrderExecutedMessage) {
     EXPECT_EQ((*result)->executed_shares,        100);
     EXPECT_EQ((*result)->match_number,           6790);
 }
+
+TEST(OrderMessageParser, ValidOrderExecutedWithPriceMessage) {
+    byte_t raw[] = { 
+        /* message size                   */ 0x00, 0x1F,
+        /* message_type           = 'E'   */ 0x45, 
+        /* stock_locate           = 42    */ 0x00, 0x2A, 
+        /* tracking_number        = 67    */ 0x00, 0x43, 
+        /* timestamp              = 12345 */ 0x00, 0x00, 0x00, 0x00, 0x30, 0x39,
+        /* order_reference_number = 43567 */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xAA, 0x2F, 
+        /* executed_shares        = 100   */ 0x00, 0x00, 0x00, 0x64, 
+        /* match_number           = 6790  */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1A, 0x86,
+        /* printable              = 'Y'   */ 0x59,
+        /* execution_price        = 98765 */ 0x00, 0x01, 0x81, 0xCD 
+    };
+
+    auto result = parse<nasdaq::OrderExecutedWithPriceMessage>(raw);
+
+    ASSERT_TRUE(result.has_value());
+    EXPECT_EQ((*result)->message_type,           'E');
+    EXPECT_EQ((*result)->stock_locate,           42);
+    EXPECT_EQ((*result)->tracking_number,        67);
+    EXPECT_EQ((*result)->timestamp,              12345);
+    EXPECT_EQ((*result)->order_reference_number, 43567);
+    EXPECT_EQ((*result)->executed_shares,        100);
+    EXPECT_EQ((*result)->match_number,           6790);
+    EXPECT_EQ((*result)->printable,              'Y');
+    EXPECT_EQ((*result)->execution_price,        98765);
+}
