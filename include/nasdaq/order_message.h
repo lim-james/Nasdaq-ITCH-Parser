@@ -4,7 +4,7 @@
 
 namespace nasdaq {
 
-struct [[gnu::packed]] OrderExecuteMessage {
+struct [[gnu::packed]] OrderExecutedMessage {
     MessageType  message_type;
     LocateCode   stock_locate;
     TrackingNum  tracking_number;

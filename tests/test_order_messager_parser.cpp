@@ -28,7 +28,7 @@ TEST(OrderMessageParser, ValidMessage) {
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1A, 0x86 
     };
 
-    auto result = parse<nasdaq::OrderExecuteMessage>(raw);
+    auto result = parse<nasdaq::OrderExecutedMessage>(raw);
 
     ASSERT_TRUE(result.has_value());
     EXPECT_EQ((*result)->message_type,           'E');
