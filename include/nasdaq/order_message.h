@@ -1,19 +1,19 @@
 #pragma once 
 
-#include <cstdint>
+#include "type.h"
 
-#include "big_endian.h"
+namespace nasdaq {
 
 struct [[gnu::packed]] OrderExecuteMessage {
-    char message_type;
-    BigEndian<std::uint16_t> stock_locate;
-    BigEndian<std::uint16_t> tracking_number;
+    MessageType  message_type;
+    LocateCode   stock_locate;
+    TrackingNum  tracking_number;
     std::uint8_t raw_timestamp[6];
-    BigEndian<std::uint64_t> order_reference_number;
-    BigEndian<std::uint32_t> executed_shares;
-    BigEndian<std::uint64_t> match_number;
+    ReferenceNum order_reference_number;
+    NumShares    executed_shares;
+    ReferenceNum match_number;
 
-    std::uint64_t timestamp() const {
+    Timestamp timestamp() const {
         return (static_cast<std::uint64_t>(raw_timestamp[0]) << 40) 
             |  (static_cast<std::uint64_t>(raw_timestamp[1]) << 32)
             |  (static_cast<std::uint64_t>(raw_timestamp[2]) << 24)
@@ -22,3 +22,5 @@ struct [[gnu::packed]] OrderExecuteMessage {
             |  (static_cast<std::uint64_t>(raw_timestamp[5]));
     }
 };
+
+}

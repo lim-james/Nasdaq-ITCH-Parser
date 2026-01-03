@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "order_message.h"
+#include "nasdaq/order_message.h"
 #include "order_message_parser.h"
 
 #include <bit>
@@ -28,7 +28,7 @@ TEST(OrderMessageParser, ValidMessage) {
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1A, 0x86 
     };
 
-    auto result = parse<OrderExecuteMessage>(raw);
+    auto result = parse<nasdaq::OrderExecuteMessage>(raw);
 
     ASSERT_TRUE(result.has_value());
     EXPECT_EQ((*result)->message_type,           'E');
@@ -39,4 +39,3 @@ TEST(OrderMessageParser, ValidMessage) {
     EXPECT_EQ((*result)->executed_shares,        100);
     EXPECT_EQ((*result)->match_number,           6790);
 }
-
