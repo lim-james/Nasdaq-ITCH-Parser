@@ -9,6 +9,7 @@ FetchContent_MakeAvailable(googletest)
 
 add_executable(unit_tests 
     test_order_messager_parser.cpp
+    test_order_messager_dispatcher.cpp
 )
 
 target_link_libraries(unit_tests 
