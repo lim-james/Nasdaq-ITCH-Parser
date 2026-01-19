@@ -65,3 +65,71 @@ TEST(OrderMessageParser, ValidOrderExecutedWithPriceMessage) {
     EXPECT_EQ((*result)->printable,              'Y');
     EXPECT_EQ((*result)->execution_price,        98765);
 }
+
+TEST(OrderMessageParser, ValidOrderCancelMessage) {
+    byte_t raw[] = { 
+        /* message size                   */ 0x00, 0x1F,
+        /* message_type           = 'X'   */ 0x58, 
+        /* stock_locate           = 42    */ 0x00, 0x2A, 
+        /* tracking_number        = 67    */ 0x00, 0x43, 
+        /* timestamp              = 12345 */ 0x00, 0x00, 0x00, 0x00, 0x30, 0x39,
+        /* order_reference_number = 43567 */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xAA, 0x2F, 
+        /* cancelled_shares       = 100   */ 0x00, 0x00, 0x00, 0x64, 
+    };
+
+    auto result = parse<nasdaq::OrderCancelMessage>(raw);
+
+    ASSERT_TRUE(result.has_value());
+    EXPECT_EQ((*result)->message_type,           'X');
+    EXPECT_EQ((*result)->stock_locate,           42);
+    EXPECT_EQ((*result)->tracking_number,        67);
+    EXPECT_EQ((*result)->timestamp,              12345);
+    EXPECT_EQ((*result)->order_reference_number, 43567);
+    EXPECT_EQ((*result)->cancelled_shares,       100);
+}
+
+TEST(OrderMessageParser, ValidOrderDeleteMessage) {
+    byte_t raw[] = { 
+        /* message size                   */ 0x00, 0x1F,
+        /* message_type           = 'D'   */ 0x44, 
+        /* stock_locate           = 42    */ 0x00, 0x2A, 
+        /* tracking_number        = 67    */ 0x00, 0x43, 
+        /* timestamp              = 12345 */ 0x00, 0x00, 0x00, 0x00, 0x30, 0x39,
+        /* order_reference_number = 43567 */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xAA, 0x2F, 
+    };
+
+    auto result = parse<nasdaq::OrderDeleteMessage>(raw);
+
+    ASSERT_TRUE(result.has_value());
+    EXPECT_EQ((*result)->message_type,           'D');
+    EXPECT_EQ((*result)->stock_locate,           42);
+    EXPECT_EQ((*result)->tracking_number,        67);
+    EXPECT_EQ((*result)->timestamp,              12345);
+    EXPECT_EQ((*result)->order_reference_number, 43567);
+}
+
+TEST(OrderMessageParser, ValidOrderReplaceMessage) {
+    byte_t raw[] = { 
+        /* message size                   */ 0x00, 0x1F,
+        /* message_type           = 'U'   */ 0x55, 
+        /* stock_locate           = 42    */ 0x00, 0x2A, 
+        /* tracking_number        = 67    */ 0x00, 0x43, 
+        /* timestamp              = 12345 */ 0x00, 0x00, 0x00, 0x00, 0x30, 0x39,
+        /* original_order_reference_number = 43567 */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xAA, 0x2F, 
+        /* new_order_reference_number = 43567 */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xAA, 0x2F, 
+        /* shares        = 100   */ 0x00, 0x00, 0x00, 0x64, 
+        /* price        = 98765 */ 0x00, 0x01, 0x81, 0xCD 
+    };
+
+    auto result = parse<nasdaq::OrderReplaceMessage>(raw);
+
+    ASSERT_TRUE(result.has_value());
+    EXPECT_EQ((*result)->message_type,           'U');
+    EXPECT_EQ((*result)->stock_locate,           42);
+    EXPECT_EQ((*result)->tracking_number,        67);
+    EXPECT_EQ((*result)->timestamp,              12345);
+    EXPECT_EQ((*result)->original_order_reference_number, 43567);
+    EXPECT_EQ((*result)->new_order_reference_number,      43567);
+    EXPECT_EQ((*result)->shares,                 100);
+    EXPECT_EQ((*result)->price,                  98765);
+}
