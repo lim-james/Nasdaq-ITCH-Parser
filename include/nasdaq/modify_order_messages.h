@@ -10,7 +10,7 @@ struct [[gnu::packed]] OrderExecutedMessage {
     TrackingNum  tracking_number;
     Timestamp    timestamp;
     ReferenceNum order_reference_number;
-    NumShares    executed_shares;
+    NumShares4   executed_shares;
     ReferenceNum match_number;
 };
 
@@ -20,7 +20,7 @@ struct [[gnu::packed]] OrderExecutedWithPriceMessage {
     TrackingNum  tracking_number;
     Timestamp    timestamp;
     ReferenceNum order_reference_number;
-    NumShares    executed_shares;
+    NumShares4   executed_shares;
     ReferenceNum match_number;
     char         printable;
     Price4       execution_price;
@@ -32,7 +32,7 @@ struct [[gnu::packed]] OrderCancelMessage {
     TrackingNum  tracking_number;
     Timestamp    timestamp;
     ReferenceNum order_reference_number;
-    NumShares    cancelled_shares;
+    NumShares4   cancelled_shares;
 };
 
 struct [[gnu::packed]] OrderDeleteMessage {
@@ -50,7 +50,7 @@ struct [[gnu::packed]] OrderReplaceMessage {
     Timestamp    timestamp;
     ReferenceNum original_order_reference_number;
     ReferenceNum new_order_reference_number;
-    NumShares    shares;
+    NumShares4   shares;
     Price4       price;
 };
 
