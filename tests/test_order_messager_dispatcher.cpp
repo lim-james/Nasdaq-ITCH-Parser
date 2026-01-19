@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include <print>
 
-#include "nasdaq/order_message.h"
 #include "order_message_dispatcher.h"
 
 class TestOrderMessageHandler: public OrderMessageHandler {
