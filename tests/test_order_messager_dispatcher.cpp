@@ -26,6 +26,10 @@ public:
         EXPECT_EQ(msg->printable,              'Y');
         EXPECT_EQ(msg->execution_price,        98765);
     }
+
+    void onOrderCancelMessage(nasdaq::OrderCancelMessage*) {}
+    void onOrderDeleteMessage(nasdaq::OrderDeleteMessage*) {}
+    void onOrderReplaceMessage(nasdaq::OrderReplaceMessage*) {}
 };
 
 // message_type           : 8  = 'E'   = 01000101
