@@ -6,12 +6,19 @@
 
 namespace nasdaq {
 
-using MessageType   = char;
-using LocateCode    = BigEndian<std::uint16_t>;
-using TrackingNum   = BigEndian<std::uint16_t>;
-using ReferenceNum  = BigEndian<std::uint64_t>;
-using NumShares     = BigEndian<std::uint32_t>;
-using Price4        = BigEndian<std::uint32_t>;
+using MessageType    = char;
+using Stock          = char[8];
+using MPID           = char[4];
+using LocateCode     = BigEndian<std::uint16_t>;
+using TrackingNum    = BigEndian<std::uint16_t>;
+using ReferenceNum   = BigEndian<std::uint64_t>;
+using NumShares4     = BigEndian<std::uint32_t>;
+using NumShares8     = BigEndian<std::uint64_t>;
+using Price4         = BigEndian<std::uint32_t>;
+using Price8         = BigEndian<std::uint64_t>;
+using Int4           = BigEndian<std::uint32_t>;
+using Int8           = BigEndian<std::uint64_t>;
+using ReleaseTime    = BigEndian<std::uint32_t>;
 
 struct [[gnu::packed]] Timestamp {
     std::uint8_t raw_timestamp[6];
