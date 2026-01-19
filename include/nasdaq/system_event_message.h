@@ -9,7 +9,7 @@ struct [[gnu::packed]] SystemEventMessage {
     LocateCode  stock_locate;
     TrackingNum tracking_number;
     Timestamp   timestamp;
-    char        eventCode; // 'O', 'S', 'Q', 'M', 'E', 'C'
+    char        event_code; // 'O', 'S', 'Q', 'M', 'E', 'C'
 };
 
 }
