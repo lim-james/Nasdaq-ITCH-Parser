@@ -14,7 +14,7 @@ struct [[gnu::packed]] StockDirectory {
     char        financialStatusIndicator; 
     NumShares4  roundLotSize;
     char        roundLotsOnly;
-    char        issueClarification;
+    char        issueClassification;
     char        issueSubType[2];
     char        authenticity;
     char        shortSaleThresholdIndicator;
@@ -22,7 +22,7 @@ struct [[gnu::packed]] StockDirectory {
     char        LULDReferencePriceTier;
     char        ETPFlag;
     Int4        ETPLeverageFactor;
-    char        reverseIndicator;
+    char        inverseIndicator;
 };
 
 struct [[gnu::packed]] StockTradingAction {
@@ -32,7 +32,7 @@ struct [[gnu::packed]] StockTradingAction {
     Timestamp   timestamp;
     Stock       stock; 
     char        tradingState; 
-    char        reversed; 
+    char        reserved; 
     char        reason[4];
 };
 
@@ -72,7 +72,7 @@ struct [[gnu::packed]] MWCBStatusMessage {
     LocateCode  stock_locate;
     TrackingNum tracking_number;
     Timestamp   timestamp;
-    char        breadedLevel;
+    char        breachedLevel;
 };
 
 struct [[gnu::packed]] QuotePeriodUpdate {
