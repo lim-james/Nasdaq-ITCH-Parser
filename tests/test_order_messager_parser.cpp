@@ -3,8 +3,6 @@
 #include "nasdaq/order_message.h"
 #include "order_message_parser.h"
 
-#include <bit>
-
 // message_type           : 8  = 'E'   = 01000101
 // stock_locate           : 16 = 42    = 0000000000101010
 // tracking_number        : 16 = 67    = 0000000001000011
@@ -43,7 +41,7 @@ TEST(OrderMessageParser, ValidOrderExecutedMessage) {
 TEST(OrderMessageParser, ValidOrderExecutedWithPriceMessage) {
     byte_t raw[] = { 
         /* message size                   */ 0x00, 0x1F,
-        /* message_type           = 'E'   */ 0x45, 
+        /* message_type           = 'C'   */ 0x43, 
         /* stock_locate           = 42    */ 0x00, 0x2A, 
         /* tracking_number        = 67    */ 0x00, 0x43, 
         /* timestamp              = 12345 */ 0x00, 0x00, 0x00, 0x00, 0x30, 0x39,
@@ -57,7 +55,7 @@ TEST(OrderMessageParser, ValidOrderExecutedWithPriceMessage) {
     auto result = parse<nasdaq::OrderExecutedWithPriceMessage>(raw);
 
     ASSERT_TRUE(result.has_value());
-    EXPECT_EQ((*result)->message_type,           'E');
+    EXPECT_EQ((*result)->message_type,           'C');
     EXPECT_EQ((*result)->stock_locate,           42);
     EXPECT_EQ((*result)->tracking_number,        67);
     EXPECT_EQ((*result)->timestamp,              12345);
