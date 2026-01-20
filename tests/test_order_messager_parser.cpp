@@ -10,17 +10,6 @@
 #include "nasdaq/trade_messages.h"
 #include "order_message_parser.h"
 
-// message_type           : 8  = 'E'   = 01000101
-// stock_locate           : 16 = 42    = 0000000000101010
-// tracking_number        : 16 = 67    = 0000000001000011
-// timestamp              : 48 = 12345 = 000000000000000000000000000000000011000000111001
-// order_reference_number : 64 = 43567 = 0000000000000000000000000000000000000000000000001010101000101111
-// executed_shares        : 32 = 100   = 00000000000000000000000001100100
-// match_number           : 64 = 6790  = 0000000000000000000000000000000000000000000000000001101010000110
-//
-// 01000101000000000010101000000000010000110000000000000000000000000000000000110000001110010000000000000000000000000000000000000000000000001010101000101111000000000000000000000000011001000000000000000000000000000000000000000000000000000001101010000110
-// 00 1F 45 00 2A 00 43 00 00 00 00 30 39 00 00 00 00 00 00 AA 2F 00 00 00 64 00 00 00 00 00 00 1A 86
-
 TEST(OrderMessageParser, ValidOrderExecutedMessage) {
     byte_t raw[] = { 
         /* message size                   */ 0x00, 0x1F,
@@ -125,20 +114,20 @@ TEST(OrderMessageParser, ValidOrderReplaceMessage) {
         /* original_order_reference_number = 43567 */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xAA, 0x2F, 
         /* new_order_reference_number = 43567 */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xAA, 0x2F, 
         /* shares        = 100   */ 0x00, 0x00, 0x00, 0x64, 
-        /* price        = 98765 */ 0x00, 0x01, 0x81, 0xCD 
+        /* price         = 98765 */ 0x00, 0x01, 0x81, 0xCD 
     };
 
     auto result = parse<nasdaq::OrderReplaceMessage>(raw);
 
     ASSERT_TRUE(result.has_value());
-    EXPECT_EQ((*result)->message_type,           'U');
-    EXPECT_EQ((*result)->stock_locate,           42);
-    EXPECT_EQ((*result)->tracking_number,        67);
-    EXPECT_EQ((*result)->timestamp,              12345);
+    EXPECT_EQ((*result)->message_type,                    'U');
+    EXPECT_EQ((*result)->stock_locate,                    42);
+    EXPECT_EQ((*result)->tracking_number,                 67);
+    EXPECT_EQ((*result)->timestamp,                       12345);
     EXPECT_EQ((*result)->original_order_reference_number, 43567);
     EXPECT_EQ((*result)->new_order_reference_number,      43567);
-    EXPECT_EQ((*result)->shares,                 100);
-    EXPECT_EQ((*result)->price,                  98765);
+    EXPECT_EQ((*result)->shares,                          100);
+    EXPECT_EQ((*result)->price,                           98765);
 }
 
 TEST(SystemMessageParser, ValidSystemEventMessage) {
@@ -314,18 +303,18 @@ TEST(NOIIMessageParser, ValidNOIIMessage) {
     auto result = parse<nasdaq::NOIIMessage>(raw);
 
     ASSERT_TRUE(result.has_value());
-    EXPECT_EQ((*result)->message_type,             'I');
-    EXPECT_EQ((*result)->stock_locate,             30);
-    EXPECT_EQ((*result)->tracking_number,          40);
-    EXPECT_EQ((*result)->timestamp,                56789);
-    EXPECT_EQ((*result)->paired_shares,            5000);
-    EXPECT_EQ((*result)->imbalance_shares,         2000);
-    EXPECT_EQ((*result)->imbalance_direction,      'B');
-    EXPECT_EQ((*result)->far_price,                330032);
-    EXPECT_EQ((*result)->near_price,               335032);
-    EXPECT_EQ((*result)->current_reference_price,  332532);
-    EXPECT_EQ((*result)->cross_type,               'O');
-    EXPECT_EQ((*result)->price_variation_indicator,'L');
+    EXPECT_EQ((*result)->message_type,              'I');
+    EXPECT_EQ((*result)->stock_locate,              30);
+    EXPECT_EQ((*result)->tracking_number,           40);
+    EXPECT_EQ((*result)->timestamp,                 56789);
+    EXPECT_EQ((*result)->paired_shares,             5000);
+    EXPECT_EQ((*result)->imbalance_shares,          2000);
+    EXPECT_EQ((*result)->imbalance_direction,       'B');
+    EXPECT_EQ((*result)->far_price,                 330032);
+    EXPECT_EQ((*result)->near_price,                335032);
+    EXPECT_EQ((*result)->current_reference_price,   332532);
+    EXPECT_EQ((*result)->cross_type,                'O');
+    EXPECT_EQ((*result)->price_variation_indicator, 'L');
 }
 
 TEST(RetailMessageParser, ValidRetailInterestMessage) {
@@ -369,17 +358,17 @@ TEST(DLCRMessageParser, ValidDLCRMessage) {
     auto result = parse<nasdaq::DLCRMessage>(raw);
 
     ASSERT_TRUE(result.has_value());
-    EXPECT_EQ((*result)->message_type,             'O');
-    EXPECT_EQ((*result)->stock_locate,             5);
-    EXPECT_EQ((*result)->tracking_number,          10);
-    EXPECT_EQ((*result)->timestamp,                98765);
-    EXPECT_EQ((*result)->open_eligibility_status,  'Y');
-    EXPECT_EQ((*result)->minimum_allowable_price,  200000);
-    EXPECT_EQ((*result)->maximum_allowable_price,  800000);
-    EXPECT_EQ((*result)->near_execution_price,     500000);
-    EXPECT_EQ((*result)->near_execution_time,      345600);
-    EXPECT_EQ((*result)->lower_price_range_collar, 450384);
-    EXPECT_EQ((*result)->upper_price_range_collar, 549616);
+    EXPECT_EQ((*result)->message_type,               'O');
+    EXPECT_EQ((*result)->stock_locate,               5);
+    EXPECT_EQ((*result)->tracking_number,            10);
+    EXPECT_EQ((*result)->timestamp,                  98765);
+    EXPECT_EQ((*result)->open_eligibility_status,    'Y');
+    EXPECT_EQ((*result)->minimum_allowable_price,    200000);
+    EXPECT_EQ((*result)->maximum_allowable_price,    800000);
+    EXPECT_EQ((*result)->near_execution_price,       500000);
+    EXPECT_EQ((*result)->near_execution_time,        345600);
+    EXPECT_EQ((*result)->lower_price_range_collar,   450384);
+    EXPECT_EQ((*result)->upper_price_range_collar,   549616);
 }
 
 TEST(StockRelatedParser, ValidStockDirectoryMessage) {
@@ -408,22 +397,22 @@ TEST(StockRelatedParser, ValidStockDirectoryMessage) {
     auto result = parse<nasdaq::StockDirectory>(raw);
 
     ASSERT_TRUE(result.has_value());
-    EXPECT_EQ((*result)->message_type,                'R');
-    EXPECT_EQ((*result)->stock_locate,                1);
-    EXPECT_EQ((*result)->tracking_number,             1);
-    EXPECT_EQ((*result)->timestamp,                   1000);
-    EXPECT_EQ((*result)->marketCategory,              'Q');
-    EXPECT_EQ((*result)->financialStatusIndicator,    'N');
-    EXPECT_EQ((*result)->roundLotSize,                100);
-    EXPECT_EQ((*result)->roundLotsOnly,               'N');
-    EXPECT_EQ((*result)->issueClassification,         'C');
-    EXPECT_EQ((*result)->authenticity,                'P');
-    EXPECT_EQ((*result)->shortSaleThresholdIndicator, 'N');
-    EXPECT_EQ((*result)->IPOFlag,                     'N');
-    EXPECT_EQ((*result)->LULDReferencePriceTier,      '1');
-    EXPECT_EQ((*result)->ETPFlag,                     'N');
-    EXPECT_EQ((*result)->ETPLeverageFactor,           1);
-    EXPECT_EQ((*result)->inverseIndicator,            'N');
+    EXPECT_EQ((*result)->message_type,                  'R');
+    EXPECT_EQ((*result)->stock_locate,                  1);
+    EXPECT_EQ((*result)->tracking_number,               1);
+    EXPECT_EQ((*result)->timestamp,                     1000);
+    EXPECT_EQ((*result)->market_category,               'Q');
+    EXPECT_EQ((*result)->financial_status_indicator,    'N');
+    EXPECT_EQ((*result)->round_lot_size,                100);
+    EXPECT_EQ((*result)->round_lots_only,               'N');
+    EXPECT_EQ((*result)->issue_classification,          'C');
+    EXPECT_EQ((*result)->authenticity,                  'P');
+    EXPECT_EQ((*result)->short_sale_threshold_indicator, 'N');
+    EXPECT_EQ((*result)->ipo_flag,                      'N');
+    EXPECT_EQ((*result)->luld_reference_price_tier,     '1');
+    EXPECT_EQ((*result)->etp_flag,                      'N');
+    EXPECT_EQ((*result)->etp_leverage_factor,           1);
+    EXPECT_EQ((*result)->inverse_indicator,             'N');
 }
 
 TEST(StockRelatedParser, ValidStockTradingActionMessage) {
@@ -446,7 +435,7 @@ TEST(StockRelatedParser, ValidStockTradingActionMessage) {
     EXPECT_EQ((*result)->stock_locate,    50);
     EXPECT_EQ((*result)->tracking_number, 100);
     EXPECT_EQ((*result)->timestamp,       5555);
-    EXPECT_EQ((*result)->tradingState,    'H');
+    EXPECT_EQ((*result)->trading_state,   'H');
     EXPECT_EQ((*result)->reserved,        ' ');
     EXPECT_EQ(std::string((*result)->reason, 4), "T1  ");
 }
@@ -469,7 +458,7 @@ TEST(StockRelatedParser, ValidRegSHOMessage) {
     EXPECT_EQ((*result)->stock_locate,    33);
     EXPECT_EQ((*result)->tracking_number, 44);
     EXPECT_EQ((*result)->timestamp,       7777);
-    EXPECT_EQ((*result)->regSHOAction,    '1');
+    EXPECT_EQ((*result)->reg_sho_action,  '1');
 }
 
 TEST(StockRelatedParser, ValidMarketParticipantPositionMessage) {
@@ -489,14 +478,14 @@ TEST(StockRelatedParser, ValidMarketParticipantPositionMessage) {
     auto result = parse<nasdaq::MarketParticipationPosition>(raw);
 
     ASSERT_TRUE(result.has_value());
-    EXPECT_EQ((*result)->message_type,              'L');
-    EXPECT_EQ((*result)->stock_locate,              22);
-    EXPECT_EQ((*result)->tracking_number,           55);
-    EXPECT_EQ((*result)->timestamp,                 8888);
-    EXPECT_EQ(std::string((*result)->mpid, 4),      "NITE");
-    EXPECT_EQ((*result)->primaryMarketMaker,        'Y');
-    EXPECT_EQ((*result)->marketMakerMode,           'N');
-    EXPECT_EQ((*result)->marketParticipationState,  'A');
+    EXPECT_EQ((*result)->message_type,               'L');
+    EXPECT_EQ((*result)->stock_locate,               22);
+    EXPECT_EQ((*result)->tracking_number,            55);
+    EXPECT_EQ((*result)->timestamp,                  8888);
+    EXPECT_EQ(std::string((*result)->mpid, 4),       "NITE");
+    EXPECT_EQ((*result)->primary_market_maker,       'Y');
+    EXPECT_EQ((*result)->market_maker_mode,          'N');
+    EXPECT_EQ((*result)->market_participation_state, 'A');
 }
 
 TEST(StockRelatedParser, ValidMWCBDeclineLevelMessage) {
@@ -518,9 +507,9 @@ TEST(StockRelatedParser, ValidMWCBDeclineLevelMessage) {
     EXPECT_EQ((*result)->stock_locate,    0);
     EXPECT_EQ((*result)->tracking_number, 1);
     EXPECT_EQ((*result)->timestamp,       9999);
-    EXPECT_EQ((*result)->level1,          100000000);
-    EXPECT_EQ((*result)->level2,          200000000);
-    EXPECT_EQ((*result)->level3,          400000000);
+    EXPECT_EQ((*result)->level_1,         100000000);
+    EXPECT_EQ((*result)->level_2,         200000000);
+    EXPECT_EQ((*result)->level_3,         400000000);
 }
 
 TEST(StockRelatedParser, ValidMWCBStatusMessage) {
@@ -540,7 +529,7 @@ TEST(StockRelatedParser, ValidMWCBStatusMessage) {
     EXPECT_EQ((*result)->stock_locate,    0);
     EXPECT_EQ((*result)->tracking_number, 2);
     EXPECT_EQ((*result)->timestamp,       11111);
-    EXPECT_EQ((*result)->breachedLevel,   '1');
+    EXPECT_EQ((*result)->breached_level,  '1');
 }
 
 TEST(StockRelatedParser, ValidIPOQuotingPeriodUpdateMessage) {
@@ -553,19 +542,19 @@ TEST(StockRelatedParser, ValidIPOQuotingPeriodUpdateMessage) {
         /* stock = "RBLX    "             */ 0x52, 0x42, 0x4C, 0x58, 0x20, 0x20, 0x20, 0x20,
         /* ipo_quotation_release_time     */ 0x00, 0x00, 0x8C, 0xA0,
         /* ipo_quotation_release_qual= 'A'*/ 0x41,
-        /* ipo_price              = 450000*/ 0x00, 0x06, 0xDF, 0x50
+        /* ipo_price              = 450384*/ 0x00, 0x06, 0xDF, 0x50
     };
 
     auto result = parse<nasdaq::QuotePeriodUpdate>(raw);
 
     ASSERT_TRUE(result.has_value());
-    EXPECT_EQ((*result)->message_type,                  'K');
-    EXPECT_EQ((*result)->stock_locate,                  0);
-    EXPECT_EQ((*result)->tracking_number,               3);
-    EXPECT_EQ((*result)->timestamp,                     22222);
-    EXPECT_EQ((*result)->IPOQuotationReleaseTime,       36000);
-    EXPECT_EQ((*result)->IPOQuotationReleaseQualifier,  'A');
-    EXPECT_EQ((*result)->IPOPrice,                      450000);
+    EXPECT_EQ((*result)->message_type,                   'K');
+    EXPECT_EQ((*result)->stock_locate,                   0);
+    EXPECT_EQ((*result)->tracking_number,                3);
+    EXPECT_EQ((*result)->timestamp,                      22222);
+    EXPECT_EQ((*result)->ipo_quotation_release_time,     36000);
+    EXPECT_EQ((*result)->ipo_quotation_release_qualifier, 'A');
+    EXPECT_EQ((*result)->ipo_price,                      450384);
 }
 
 TEST(StockRelatedParser, ValidLULDAuctionCollarMessage) {
@@ -585,14 +574,14 @@ TEST(StockRelatedParser, ValidLULDAuctionCollarMessage) {
     auto result = parse<nasdaq::LULDAuctionCollar>(raw);
 
     ASSERT_TRUE(result.has_value());
-    EXPECT_EQ((*result)->message_type,                 'J');
-    EXPECT_EQ((*result)->stock_locate,                 77);
-    EXPECT_EQ((*result)->tracking_number,              88);
-    EXPECT_EQ((*result)->timestamp,                    33333);
-    EXPECT_EQ((*result)->auctionCollarReferencePrice,  120000);
-    EXPECT_EQ((*result)->upperAuctionCollarPrice,      132000);
-    EXPECT_EQ((*result)->lowerAuctionCollarPrice,      108000);
-    EXPECT_EQ((*result)->auctionCollarExtension,       0);
+    EXPECT_EQ((*result)->message_type,                  'J');
+    EXPECT_EQ((*result)->stock_locate,                  77);
+    EXPECT_EQ((*result)->tracking_number,               88);
+    EXPECT_EQ((*result)->timestamp,                     33333);
+    EXPECT_EQ((*result)->auction_collar_reference_price, 120000);
+    EXPECT_EQ((*result)->upper_auction_collar_price,    132000);
+    EXPECT_EQ((*result)->lower_auction_collar_price,    108000);
+    EXPECT_EQ((*result)->auction_collar_extension,      0);
 }
 
 TEST(StockRelatedParser, ValidOperationalHaltMessage) {
@@ -614,6 +603,6 @@ TEST(StockRelatedParser, ValidOperationalHaltMessage) {
     EXPECT_EQ((*result)->stock_locate,            99);
     EXPECT_EQ((*result)->tracking_number,         111);
     EXPECT_EQ((*result)->timestamp,               44444);
-    EXPECT_EQ((*result)->marketCode,              'Q');
-    EXPECT_EQ((*result)->operationalHaltAction,   'H');
+    EXPECT_EQ((*result)->market_code,             'Q');
+    EXPECT_EQ((*result)->operational_halt_action, 'H');
 }
