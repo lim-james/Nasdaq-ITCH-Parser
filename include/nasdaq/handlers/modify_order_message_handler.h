@@ -2,11 +2,15 @@
 
 #include "nasdaq/modify_order_messages.h"
 
-class OrderMessageHandler {
+namespace nasdaq {
+
+class ModifyOrderMessageHandler {
 public:
-    virtual void onOrderExecutedMessage(nasdaq::OrderExecutedMessage*) = 0;
-    virtual void onOrderExecutedWithPriceMessage(nasdaq::OrderExecutedWithPriceMessage*) = 0;
-    virtual void onOrderCancelMessage(nasdaq::OrderCancelMessage*) = 0;
-    virtual void onOrderDeleteMessage(nasdaq::OrderDeleteMessage*) = 0;
-    virtual void onOrderReplaceMessage(nasdaq::OrderReplaceMessage*) = 0;
+    virtual void onOrderExecutedMessage(OrderExecutedMessage*) = 0;
+    virtual void onOrderExecutedWithPriceMessage(OrderExecutedWithPriceMessage*) = 0;
+    virtual void onOrderCancelMessage(OrderCancelMessage*) = 0;
+    virtual void onOrderDeleteMessage(OrderDeleteMessage*) = 0;
+    virtual void onOrderReplaceMessage(OrderReplaceMessage*) = 0;
 };
+
+}
