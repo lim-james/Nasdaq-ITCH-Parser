@@ -3,7 +3,7 @@
 
 #include "order_message_dispatcher.h"
 
-class TestOrderMessageHandler: public OrderMessageHandler {
+class TestOrderMessageHandler: public nasdaq::ModifyOrderMessageHandler {
 public:
     void onOrderExecutedMessage(nasdaq::OrderExecutedMessage* msg) override {
         EXPECT_EQ(msg->message_type,           'E');

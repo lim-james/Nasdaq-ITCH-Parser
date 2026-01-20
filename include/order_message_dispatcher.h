@@ -3,8 +3,7 @@
 #include <unordered_map>
 #include <functional>
 
-#include "nasdaq/modify_order_messages.h"
-#include "order_message_handler.h"
+#include "nasdaq/handlers/modify_order_message_handler.h"
 #include "order_message_parser.h"
 
 using byte_t = unsigned char;
@@ -13,7 +12,7 @@ class OrderMessageDispatcher {
 private:
 
     std::unordered_map<char, std::function<MessageSize(byte_t*)>> dispatchers_;
-    std::vector<OrderMessageHandler*> handlers_;
+    std::vector<nasdaq::ModifyOrderMessageHandler*> modify_order_message_handlers_;
 
 public:
 
@@ -25,8 +24,8 @@ public:
         );
     }
 
-    void subscribe(OrderMessageHandler& handler) {
-        handlers_.push_back(&handler);
+    void subscribe(nasdaq::ModifyOrderMessageHandler& handler) {
+        modify_order_message_handlers_.push_back(&handler);
     }
 
     MessageSize feed(byte_t* buffer) {
@@ -38,7 +37,7 @@ private:
 
     MessageSize dispatchExecuteMessage(byte_t* buffer) {
         if (auto message = parse<nasdaq::OrderExecutedMessage>(buffer); message.has_value()) {
-            for (auto handler: handlers_) {
+            for (auto handler: modify_order_message_handlers_) {
                 handler->onOrderExecutedMessage(*message);
             }
         }
@@ -47,7 +46,7 @@ private:
 
     MessageSize dispatchExecuteMessageWithPriceMessage(byte_t* buffer) {
         if (auto message = parse<nasdaq::OrderExecutedWithPriceMessage>(buffer); message.has_value()) {
-            for (auto handler: handlers_) {
+            for (auto handler: modify_order_message_handlers_) {
                 handler->onOrderExecutedWithPriceMessage(*message);
             }
         }
