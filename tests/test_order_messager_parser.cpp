@@ -543,3 +543,77 @@ TEST(StockRelatedParser, ValidMWCBStatusMessage) {
     EXPECT_EQ((*result)->breachedLevel,   '1');
 }
 
+TEST(StockRelatedParser, ValidIPOQuotingPeriodUpdateMessage) {
+    byte_t raw[] = { 
+        /* message size                   */ 0x00, 0x1C,
+        /* message_type           = 'K'   */ 0x4B, 
+        /* stock_locate           = 0     */ 0x00, 0x00, 
+        /* tracking_number        = 3     */ 0x00, 0x03, 
+        /* timestamp              = 22222 */ 0x00, 0x00, 0x00, 0x00, 0x56, 0xCE,
+        /* stock = "RBLX    "             */ 0x52, 0x42, 0x4C, 0x58, 0x20, 0x20, 0x20, 0x20,
+        /* ipo_quotation_release_time     */ 0x00, 0x00, 0x8C, 0xA0,
+        /* ipo_quotation_release_qual= 'A'*/ 0x41,
+        /* ipo_price              = 450000*/ 0x00, 0x06, 0xDF, 0x50
+    };
+
+    auto result = parse<nasdaq::QuotePeriodUpdate>(raw);
+
+    ASSERT_TRUE(result.has_value());
+    EXPECT_EQ((*result)->message_type,                  'K');
+    EXPECT_EQ((*result)->stock_locate,                  0);
+    EXPECT_EQ((*result)->tracking_number,               3);
+    EXPECT_EQ((*result)->timestamp,                     22222);
+    EXPECT_EQ((*result)->IPOQuotationReleaseTime,       36000);
+    EXPECT_EQ((*result)->IPOQuotationReleaseQualifier,  'A');
+    EXPECT_EQ((*result)->IPOPrice,                      450000);
+}
+
+TEST(StockRelatedParser, ValidLULDAuctionCollarMessage) {
+    byte_t raw[] = { 
+        /* message size                   */ 0x00, 0x23,
+        /* message_type           = 'J'   */ 0x4A, 
+        /* stock_locate           = 77    */ 0x00, 0x4D, 
+        /* tracking_number        = 88    */ 0x00, 0x58, 
+        /* timestamp              = 33333 */ 0x00, 0x00, 0x00, 0x00, 0x82, 0x35,
+        /* stock = "SNAP    "             */ 0x53, 0x4E, 0x41, 0x50, 0x20, 0x20, 0x20, 0x20,
+        /* auction_collar_ref     = 120000*/ 0x00, 0x01, 0xD4, 0xC0,
+        /* upper_auction_collar   = 132000*/ 0x00, 0x02, 0x03, 0xA0,
+        /* lower_auction_collar   = 108000*/ 0x00, 0x01, 0xA5, 0xE0,
+        /* auction_collar_ext     = 0     */ 0x00, 0x00, 0x00, 0x00
+    };
+
+    auto result = parse<nasdaq::LULDAuctionCollar>(raw);
+
+    ASSERT_TRUE(result.has_value());
+    EXPECT_EQ((*result)->message_type,                 'J');
+    EXPECT_EQ((*result)->stock_locate,                 77);
+    EXPECT_EQ((*result)->tracking_number,              88);
+    EXPECT_EQ((*result)->timestamp,                    33333);
+    EXPECT_EQ((*result)->auctionCollarReferencePrice,  120000);
+    EXPECT_EQ((*result)->upperAuctionCollarPrice,      132000);
+    EXPECT_EQ((*result)->lowerAuctionCollarPrice,      108000);
+    EXPECT_EQ((*result)->auctionCollarExtension,       0);
+}
+
+TEST(StockRelatedParser, ValidOperationalHaltMessage) {
+    byte_t raw[] = { 
+        /* message size                   */ 0x00, 0x15,
+        /* message_type           = 'h'   */ 0x68, 
+        /* stock_locate           = 99    */ 0x00, 0x63, 
+        /* tracking_number        = 111   */ 0x00, 0x6F, 
+        /* timestamp              = 44444 */ 0x00, 0x00, 0x00, 0x00, 0xAD, 0x9C,
+        /* stock = "HOOD    "             */ 0x48, 0x4F, 0x4F, 0x44, 0x20, 0x20, 0x20, 0x20,
+        /* market_code            = 'Q'   */ 0x51,
+        /* operational_halt_action= 'H'   */ 0x48
+    };
+
+    auto result = parse<nasdaq::OperationHalt>(raw);
+
+    ASSERT_TRUE(result.has_value());
+    EXPECT_EQ((*result)->message_type,            'h');
+    EXPECT_EQ((*result)->stock_locate,            99);
+    EXPECT_EQ((*result)->tracking_number,         111);
+    EXPECT_EQ((*result)->timestamp,               44444);
+    EXPECT_EQ((*result)->marketCode,              'Q');
+    EXPECT_EQ((*result)->operationalHaltAction,   'H');
+}
