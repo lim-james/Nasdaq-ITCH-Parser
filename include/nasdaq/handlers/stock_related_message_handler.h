@@ -4,7 +4,7 @@
 
 namespace nasdaq {
 
-class StockrelatedMessageHandler {
+class StockRelatedMessageHandler {
 public:
     virtual void onStockDirectory(StockDirectory*) = 0; 
     virtual void onStockTradingAction(StockTradingAction*) = 0; 
