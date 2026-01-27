@@ -4,6 +4,8 @@
 #include <functional>
 
 #include "nasdaq/handlers/modify_order_message_handler.h"
+#include "nasdaq/handlers/trade_message_handler.h"
+#include "nasdaq/modify_order_messages.h"
 #include "order_message_parser.h"
 
 using byte_t = unsigned char;
@@ -11,17 +13,30 @@ using byte_t = unsigned char;
 class OrderMessageDispatcher {
 private:
 
-    std::unordered_map<char, std::function<MessageSize(byte_t*)>> dispatchers_;
+    using DispatcherFn = std::function<MessageSize(byte_t*)>;
+
+    std::unordered_map<char, DispatcherFn> dispatchers_;
     std::vector<nasdaq::ModifyOrderMessageHandler*> modify_order_message_handlers_;
+    std::vector<nasdaq::TradeMessageHandler*> trade_message_handlers_;
 
 public:
 
     OrderMessageDispatcher() {
-        dispatchers_['E'] = std::bind_front(&OrderMessageDispatcher::dispatchExecuteMessage, this);
-        dispatchers_['C'] = std::bind_front(
-            &OrderMessageDispatcher::dispatchExecuteMessageWithPriceMessage, 
-            this
-        );
+        dispatchers_['E'] = [this](byte_t* buffer) -> MessageSize { 
+            return dispatch<
+                nasdaq::OrderExecutedMessage, 
+                nasdaq::ModifyOrderMessageHandler,
+                &nasdaq::ModifyOrderMessageHandler::onOrderExecutedMessage
+            >(buffer, modify_order_message_handlers_);
+        };
+
+        dispatchers_['C'] = [this](byte_t* buffer) -> MessageSize { 
+            return dispatch<
+                nasdaq::OrderExecutedWithPriceMessage, 
+                nasdaq::ModifyOrderMessageHandler,
+                &nasdaq::ModifyOrderMessageHandler::onOrderExecutedWithPriceMessage
+            >(buffer, modify_order_message_handlers_);
+        };
     }
 
     void subscribe(nasdaq::ModifyOrderMessageHandler& handler) {
@@ -35,22 +50,15 @@ public:
 
 private:
 
-    MessageSize dispatchExecuteMessage(byte_t* buffer) {
-        if (auto message = parse<nasdaq::OrderExecutedMessage>(buffer); message.has_value()) {
-            for (auto handler: modify_order_message_handlers_) {
-                handler->onOrderExecutedMessage(*message);
-            }
-        }
-        return sizeof(nasdaq::OrderExecutedMessage);
-    }
-
-    MessageSize dispatchExecuteMessageWithPriceMessage(byte_t* buffer) {
-        if (auto message = parse<nasdaq::OrderExecutedWithPriceMessage>(buffer); message.has_value()) {
-            for (auto handler: modify_order_message_handlers_) {
-                handler->onOrderExecutedWithPriceMessage(*message);
-            }
-        }
-        return sizeof(nasdaq::OrderExecutedWithPriceMessage);
+    template<
+        typename MessageT, 
+        typename HandlerT,
+        void (HandlerT::*HandlerFn)(MessageT*)
+    >
+    MessageSize dispatch(byte_t* buffer, const std::vector<HandlerT*>& handlers) {
+        if (auto message = parse<MessageT>(buffer); message.has_value()) 
+            for (auto handler: handlers) ((*handler).*HandlerFn)(*message);
+        return sizeof(MessageT);
     }
 
 };
