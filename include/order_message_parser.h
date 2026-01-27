@@ -4,7 +4,8 @@
 #include <expected>
 
 enum class OrderMessageParseError: char {
-    INVALID_BUFFER_LENGTH
+    INVALID_BUFFER_LENGTH,
+    NULL_BUFFER
 };
 
 using byte_t = unsigned char;
@@ -12,6 +13,9 @@ using MessageSize = std::uint16_t;
 
 template<typename OrderMessage>
 auto parse(byte_t* buffer) -> std::expected<OrderMessage*, OrderMessageParseError> {
+    if (!buffer) 
+        return std::unexpected(OrderMessageParseError::NULL_BUFFER);
+
     constexpr MessageSize MESSAGE_SIZE  = sizeof(OrderMessage); 
     constexpr std::size_t BUFFER_OFFSET = sizeof(MessageSize);
 
