@@ -4,12 +4,15 @@
 #include <functional>
 
 #include "nasdaq/handlers/dlcr_message_handler.h"
+#include "nasdaq/handlers/net_order_balance_indicator_message_handler.h"
+#include "nasdaq/handlers/net_order_balance_indicator_message_handler.h"
 #include "nasdaq/handlers/trade_message_handler.h"
 #include "nasdaq/handlers/add_order_message_handler.h"
 #include "nasdaq/handlers/system_event_message_handler.h"
 #include "nasdaq/handlers/modify_order_message_handler.h"
 #include "nasdaq/handlers/stock_related_message_handler.h"
 #include "nasdaq/handlers/retail_interest_message_handler.h"
+#include "nasdaq/handlers/net_order_balance_indicator_message_handler.h"
 
 #include "order_message_parser.h"
 
@@ -29,13 +32,14 @@ private:
     std::vector<nasdaq::ModifyOrderMessageHandler*> modify_order_message_handlers_;
     std::vector<nasdaq::StockRelatedMessageHandler*> stock_related_message_handlers_;
     std::vector<nasdaq::RetailInterestMessageHandler*> retail_interest_message_handlers_;
+    std::vector<nasdaq::NOIIMessageHandler*> noii_message_handlers_;
 
 public:
 
     OrderMessageDispatcher() {
         using namespace nasdaq;
 
-        addDLCRDispatcher<&DLCRMessageHandler::onDLCRMessage>('E');
+        addDLCRDispatcher<&DLCRMessageHandler::onDLCRMessage>('O');
 
         addTradeDispatcher<&TradeMessageHandler::onTradeMessage>('P');
         addTradeDispatcher<&TradeMessageHandler::onCrossTradeMessage>('Q');
@@ -63,6 +67,8 @@ public:
         addStockRelatedDispatcher<&StockRelatedMessageHandler::onOperationHalt>('h');
 
         addRetailInterestDispatcher<&RetailInterestMessageHandler::onRetailInterestMessage>('N');
+
+        addNOIIDispatcher<&nasdaq::NOIIMessageHandler::onNOIIMessage>('I');
     }
 
     void subscribe(nasdaq::DLCRMessageHandler& handler) {
@@ -91,6 +97,10 @@ public:
 
     void subscribe(nasdaq::RetailInterestMessageHandler& handler) {
         retail_interest_message_handlers_.push_back(&handler);
+    }
+
+    void subscribe(nasdaq::NOIIMessageHandler& handler) {
+        noii_message_handlers_.push_back(&handler);
     }
 
     MessageSize feed(byte_t* buffer) {
@@ -177,6 +187,16 @@ private:
             return this->dispatchMessage<
                 HandlerFn,
                 &OrderMessageDispatcher::retail_interest_message_handlers_
+            >(buffer);
+        };
+    }
+
+    template<auto HandlerFn>
+    void addNOIIDispatcher(char message_type) {
+        dispatchers_[message_type] = [this](byte_t* buffer) {
+            return this->dispatchMessage<
+                HandlerFn,
+                &OrderMessageDispatcher::noii_message_handlers_
             >(buffer);
         };
     }
