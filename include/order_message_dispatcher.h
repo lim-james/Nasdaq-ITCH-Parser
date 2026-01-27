@@ -105,7 +105,12 @@ public:
 
     MessageSize feed(byte_t* buffer) {
         const char message_type = *reinterpret_cast<char*>(buffer + sizeof(MessageSize));
-        return dispatchers_[message_type](buffer) + sizeof(MessageSize);
+        
+        auto it = dispatchers_.find(message_type);
+        if (it == dispatchers_.end())
+            return sizeof(MessageSize);
+
+        return it->second(buffer) + sizeof(MessageSize);
     }
 
 private:
