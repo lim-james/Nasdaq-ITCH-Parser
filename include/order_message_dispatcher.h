@@ -22,21 +22,12 @@ private:
 public:
 
     OrderMessageDispatcher() {
-        dispatchers_['E'] = [this](byte_t* buffer) -> MessageSize { 
-            return dispatch<
-                nasdaq::OrderExecutedMessage, 
-                nasdaq::ModifyOrderMessageHandler,
-                &nasdaq::ModifyOrderMessageHandler::onOrderExecutedMessage
-            >(buffer, modify_order_message_handlers_);
-        };
+        using namespace nasdaq;
 
-        dispatchers_['C'] = [this](byte_t* buffer) -> MessageSize { 
-            return dispatch<
-                nasdaq::OrderExecutedWithPriceMessage, 
-                nasdaq::ModifyOrderMessageHandler,
-                &nasdaq::ModifyOrderMessageHandler::onOrderExecutedWithPriceMessage
-            >(buffer, modify_order_message_handlers_);
-        };
+        addModifyDispatcher<&ModifyOrderMessageHandler::onOrderExecutedMessage>('E');
+        addModifyDispatcher<&ModifyOrderMessageHandler::onOrderExecutedWithPriceMessage>('C');
+        addModifyDispatcher<&ModifyOrderMessageHandler::onOrderCancelMessage>('X');
+        addModifyDispatcher<&ModifyOrderMessageHandler::onOrderDeleteMessage>('D');
     }
 
     void subscribe(nasdaq::ModifyOrderMessageHandler& handler) {
@@ -50,14 +41,29 @@ public:
 
 private:
 
+    template<typename T>
+    struct extract_message_type;
+
     template<
-        typename MessageT, 
-        typename HandlerT,
-        void (HandlerT::*HandlerFn)(MessageT*)
+        typename HandlerInterface,
+        typename MessageT
     >
-    MessageSize dispatch(byte_t* buffer, const std::vector<HandlerT*>& handlers) {
+    struct extract_message_type<void (HandlerInterface::*)(MessageT*)> {
+        using type = MessageT;
+    };
+
+    template<auto HandlerFn>
+    void addModifyDispatcher(char message_type) {
+        dispatchers_[message_type] = [this](byte_t* buffer) {
+            return this->dispatchModifyOrderMessage<HandlerFn>(buffer);
+        };
+    }
+
+    template<auto HandlerFn>
+    MessageSize dispatchModifyOrderMessage(byte_t* buffer) {
+        using MessageT = extract_message_type<decltype(HandlerFn)>::type;
         if (auto message = parse<MessageT>(buffer); message.has_value()) 
-            for (auto handler: handlers) ((*handler).*HandlerFn)(*message);
+            for (auto handler: modify_order_message_handlers_) ((*handler).*HandlerFn)(*message);
         return sizeof(MessageT);
     }
 
