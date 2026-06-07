@@ -1,5 +1,4 @@
 #include <gtest/gtest.h>
-#include <print>
 
 #include "helpers.h"
 #include "order_message_dispatcher.h"
