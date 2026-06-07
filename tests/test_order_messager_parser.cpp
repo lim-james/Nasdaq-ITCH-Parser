@@ -14,8 +14,6 @@
 
 TEST(OrderMessageParser, ValidOrderExecutedMessage) {
     auto raw = make_bytes(
-        /* message size                   */ 0x00, 0x1F,
-        /* message_type           = 'E'   */ 0x45, 
         /* stock_locate           = 42    */ 0x00, 0x2A, 
         /* tracking_number        = 67    */ 0x00, 0x43, 
         /* timestamp              = 12345 */ 0x00, 0x00, 0x00, 0x00, 0x30, 0x39,
@@ -27,7 +25,6 @@ TEST(OrderMessageParser, ValidOrderExecutedMessage) {
     auto result = parse<nasdaq::OrderExecutedMessage>(raw);
 
     ASSERT_TRUE(result.has_value());
-    EXPECT_EQ((*result)->message_type,           'E');
     EXPECT_EQ((*result)->stock_locate,           42);
     EXPECT_EQ((*result)->tracking_number,        67);
     EXPECT_EQ((*result)->timestamp,              12345);
@@ -38,8 +35,6 @@ TEST(OrderMessageParser, ValidOrderExecutedMessage) {
 
 TEST(OrderMessageParser, ValidOrderExecutedWithPriceMessage) {
     auto raw = make_bytes(
-        /* message size                   */ 0x00, 0x1F,
-        /* message_type           = 'C'   */ 0x43, 
         /* stock_locate           = 42    */ 0x00, 0x2A, 
         /* tracking_number        = 67    */ 0x00, 0x43, 
         /* timestamp              = 12345 */ 0x00, 0x00, 0x00, 0x00, 0x30, 0x39,
@@ -53,7 +48,6 @@ TEST(OrderMessageParser, ValidOrderExecutedWithPriceMessage) {
     auto result = parse<nasdaq::OrderExecutedWithPriceMessage>(raw);
 
     ASSERT_TRUE(result.has_value());
-    EXPECT_EQ((*result)->message_type,           'C');
     EXPECT_EQ((*result)->stock_locate,           42);
     EXPECT_EQ((*result)->tracking_number,        67);
     EXPECT_EQ((*result)->timestamp,              12345);
@@ -66,8 +60,6 @@ TEST(OrderMessageParser, ValidOrderExecutedWithPriceMessage) {
 
 TEST(OrderMessageParser, ValidOrderCancelMessage) {
     auto raw = make_bytes(
-        /* message size                   */ 0x00, 0x1F,
-        /* message_type           = 'X'   */ 0x58, 
         /* stock_locate           = 42    */ 0x00, 0x2A, 
         /* tracking_number        = 67    */ 0x00, 0x43, 
         /* timestamp              = 12345 */ 0x00, 0x00, 0x00, 0x00, 0x30, 0x39,
@@ -78,7 +70,6 @@ TEST(OrderMessageParser, ValidOrderCancelMessage) {
     auto result = parse<nasdaq::OrderCancelMessage>(raw);
 
     ASSERT_TRUE(result.has_value());
-    EXPECT_EQ((*result)->message_type,           'X');
     EXPECT_EQ((*result)->stock_locate,           42);
     EXPECT_EQ((*result)->tracking_number,        67);
     EXPECT_EQ((*result)->timestamp,              12345);
@@ -88,8 +79,6 @@ TEST(OrderMessageParser, ValidOrderCancelMessage) {
 
 TEST(OrderMessageParser, ValidOrderDeleteMessage) {
     auto raw = make_bytes(
-        /* message size                   */ 0x00, 0x1F,
-        /* message_type           = 'D'   */ 0x44, 
         /* stock_locate           = 42    */ 0x00, 0x2A, 
         /* tracking_number        = 67    */ 0x00, 0x43, 
         /* timestamp              = 12345 */ 0x00, 0x00, 0x00, 0x00, 0x30, 0x39,
@@ -99,7 +88,6 @@ TEST(OrderMessageParser, ValidOrderDeleteMessage) {
     auto result = parse<nasdaq::OrderDeleteMessage>(raw);
 
     ASSERT_TRUE(result.has_value());
-    EXPECT_EQ((*result)->message_type,           'D');
     EXPECT_EQ((*result)->stock_locate,           42);
     EXPECT_EQ((*result)->tracking_number,        67);
     EXPECT_EQ((*result)->timestamp,              12345);
@@ -108,8 +96,6 @@ TEST(OrderMessageParser, ValidOrderDeleteMessage) {
 
 TEST(OrderMessageParser, ValidOrderReplaceMessage) {
     auto raw = make_bytes(
-        /* message size                   */ 0x00, 0x1F,
-        /* message_type           = 'U'   */ 0x55, 
         /* stock_locate           = 42    */ 0x00, 0x2A, 
         /* tracking_number        = 67    */ 0x00, 0x43, 
         /* timestamp              = 12345 */ 0x00, 0x00, 0x00, 0x00, 0x30, 0x39,
@@ -122,7 +108,6 @@ TEST(OrderMessageParser, ValidOrderReplaceMessage) {
     auto result = parse<nasdaq::OrderReplaceMessage>(raw);
 
     ASSERT_TRUE(result.has_value());
-    EXPECT_EQ((*result)->message_type,                    'U');
     EXPECT_EQ((*result)->stock_locate,                    42);
     EXPECT_EQ((*result)->tracking_number,                 67);
     EXPECT_EQ((*result)->timestamp,                       12345);
@@ -134,8 +119,6 @@ TEST(OrderMessageParser, ValidOrderReplaceMessage) {
 
 TEST(SystemMessageParser, ValidSystemEventMessage) {
     auto raw = make_bytes(
-        /* message size                   */ 0x00, 0x0C,
-        /* message_type           = 'S'   */ 0x53, 
         /* stock_locate           = 0     */ 0x00, 0x00, 
         /* tracking_number        = 1     */ 0x00, 0x01, 
         /* timestamp              = 12345 */ 0x00, 0x00, 0x00, 0x00, 0x30, 0x39,
@@ -145,7 +128,6 @@ TEST(SystemMessageParser, ValidSystemEventMessage) {
     auto result = parse<nasdaq::SystemEventMessage>(raw);
 
     ASSERT_TRUE(result.has_value());
-    EXPECT_EQ((*result)->message_type,    'S');
     EXPECT_EQ((*result)->stock_locate,    0);
     EXPECT_EQ((*result)->tracking_number, 1);
     EXPECT_EQ((*result)->timestamp,       12345);
@@ -154,8 +136,6 @@ TEST(SystemMessageParser, ValidSystemEventMessage) {
 
 TEST(AddOrderParser, ValidAddOrderMessage) {
     auto raw = make_bytes(
-        /* message size                   */ 0x00, 0x24,
-        /* message_type           = 'A'   */ 0x41, 
         /* stock_locate           = 100   */ 0x00, 0x64, 
         /* tracking_number        = 200   */ 0x00, 0xC8, 
         /* timestamp              = 34567 */ 0x00, 0x00, 0x00, 0x00, 0x87, 0x07,
@@ -169,7 +149,6 @@ TEST(AddOrderParser, ValidAddOrderMessage) {
     auto result = parse<nasdaq::AddOrderMessage>(raw);
 
     ASSERT_TRUE(result.has_value());
-    EXPECT_EQ((*result)->message_type,           'A');
     EXPECT_EQ((*result)->stock_locate,           100);
     EXPECT_EQ((*result)->tracking_number,        200);
     EXPECT_EQ((*result)->timestamp,              34567);
@@ -181,8 +160,6 @@ TEST(AddOrderParser, ValidAddOrderMessage) {
 
 TEST(AddOrderParser, ValidAddOrderMPIDMessage) {
     auto raw = make_bytes(
-        /* message size                   */ 0x00, 0x28,
-        /* message_type           = 'F'   */ 0x46, 
         /* stock_locate           = 100   */ 0x00, 0x64, 
         /* tracking_number        = 200   */ 0x00, 0xC8, 
         /* timestamp              = 34567 */ 0x00, 0x00, 0x00, 0x00, 0x87, 0x07,
@@ -197,7 +174,6 @@ TEST(AddOrderParser, ValidAddOrderMPIDMessage) {
     auto result = parse<nasdaq::AddOrderMPIDMessage>(raw);
 
     ASSERT_TRUE(result.has_value());
-    EXPECT_EQ((*result)->message_type,           'F');
     EXPECT_EQ((*result)->stock_locate,           100);
     EXPECT_EQ((*result)->tracking_number,        200);
     EXPECT_EQ((*result)->timestamp,              34567);
@@ -210,8 +186,6 @@ TEST(AddOrderParser, ValidAddOrderMPIDMessage) {
 
 TEST(TradeMessageParser, ValidTradeMessage) {
     auto raw = make_bytes(
-        /* message size                   */ 0x00, 0x2C,
-        /* message_type           = 'P'   */ 0x50, 
         /* stock_locate           = 50    */ 0x00, 0x32, 
         /* tracking_number        = 75    */ 0x00, 0x4B, 
         /* timestamp              = 45678 */ 0x00, 0x00, 0x00, 0x00, 0xB2, 0x6E,
@@ -226,7 +200,6 @@ TEST(TradeMessageParser, ValidTradeMessage) {
     auto result = parse<nasdaq::TradeMessage>(raw);
 
     ASSERT_TRUE(result.has_value());
-    EXPECT_EQ((*result)->message_type,           'P');
     EXPECT_EQ((*result)->stock_locate,           50);
     EXPECT_EQ((*result)->tracking_number,        75);
     EXPECT_EQ((*result)->timestamp,              45678);
@@ -239,8 +212,6 @@ TEST(TradeMessageParser, ValidTradeMessage) {
 
 TEST(TradeMessageParser, ValidCrossTradeMessage) {
     auto raw = make_bytes(
-        /* message size                   */ 0x00, 0x28,
-        /* message_type           = 'Q'   */ 0x51, 
         /* stock_locate           = 25    */ 0x00, 0x19, 
         /* tracking_number        = 88    */ 0x00, 0x58, 
         /* timestamp              = 23456 */ 0x00, 0x00, 0x00, 0x00, 0x5B, 0xA0,
@@ -254,7 +225,6 @@ TEST(TradeMessageParser, ValidCrossTradeMessage) {
     auto result = parse<nasdaq::CrossTradeMessage>(raw);
 
     ASSERT_TRUE(result.has_value());
-    EXPECT_EQ((*result)->message_type,    'Q');
     EXPECT_EQ((*result)->stock_locate,    25);
     EXPECT_EQ((*result)->tracking_number, 88);
     EXPECT_EQ((*result)->timestamp,       23456);
@@ -266,8 +236,6 @@ TEST(TradeMessageParser, ValidCrossTradeMessage) {
 
 TEST(TradeMessageParser, ValidBrokenTradeMessage) {
     auto raw = make_bytes(
-        /* message size                   */ 0x00, 0x13,
-        /* message_type           = 'B'   */ 0x42, 
         /* stock_locate           = 10    */ 0x00, 0x0A, 
         /* tracking_number        = 20    */ 0x00, 0x14, 
         /* timestamp              = 67890 */ 0x00, 0x00, 0x00, 0x01, 0x09, 0x32,
@@ -277,7 +245,6 @@ TEST(TradeMessageParser, ValidBrokenTradeMessage) {
     auto result = parse<nasdaq::BrokenTradeMessage>(raw);
 
     ASSERT_TRUE(result.has_value());
-    EXPECT_EQ((*result)->message_type,    'B');
     EXPECT_EQ((*result)->stock_locate,    10);
     EXPECT_EQ((*result)->tracking_number, 20);
     EXPECT_EQ((*result)->timestamp,       67890);
@@ -286,8 +253,6 @@ TEST(TradeMessageParser, ValidBrokenTradeMessage) {
 
 TEST(NOIIMessageParser, ValidNOIIMessage) {
     auto raw = make_bytes(
-        /* message size                   */ 0x00, 0x32,
-        /* message_type           = 'I'   */ 0x49, 
         /* stock_locate           = 30    */ 0x00, 0x1E, 
         /* tracking_number        = 40    */ 0x00, 0x28, 
         /* timestamp              = 56789 */ 0x00, 0x00, 0x00, 0x00, 0xDD, 0xD5,
@@ -305,7 +270,6 @@ TEST(NOIIMessageParser, ValidNOIIMessage) {
     auto result = parse<nasdaq::NOIIMessage>(raw);
 
     ASSERT_TRUE(result.has_value());
-    EXPECT_EQ((*result)->message_type,              'I');
     EXPECT_EQ((*result)->stock_locate,              30);
     EXPECT_EQ((*result)->tracking_number,           40);
     EXPECT_EQ((*result)->timestamp,                 56789);
@@ -321,8 +285,6 @@ TEST(NOIIMessageParser, ValidNOIIMessage) {
 
 TEST(RetailMessageParser, ValidRetailInterestMessage) {
     auto raw = make_bytes(
-        /* message size                   */ 0x00, 0x14,
-        /* message_type           = 'N'   */ 0x4E, 
         /* stock_locate           = 15    */ 0x00, 0x0F, 
         /* tracking_number        = 25    */ 0x00, 0x19, 
         /* timestamp              = 11111 */ 0x00, 0x00, 0x00, 0x00, 0x2B, 0x67,
@@ -333,7 +295,6 @@ TEST(RetailMessageParser, ValidRetailInterestMessage) {
     auto result = parse<nasdaq::RetailInterestMessage>(raw);
 
     ASSERT_TRUE(result.has_value());
-    EXPECT_EQ((*result)->message_type,    'N');
     EXPECT_EQ((*result)->stock_locate,    15);
     EXPECT_EQ((*result)->tracking_number, 25);
     EXPECT_EQ((*result)->timestamp,       11111);
@@ -342,8 +303,6 @@ TEST(RetailMessageParser, ValidRetailInterestMessage) {
 
 TEST(DLCRMessageParser, ValidDLCRMessage) {
     auto raw = make_bytes(
-        /* message size                   */ 0x00, 0x2F,
-        /* message_type           = 'O'   */ 0x4F, 
         /* stock_locate           = 5     */ 0x00, 0x05, 
         /* tracking_number        = 10    */ 0x00, 0x0A, 
         /* timestamp              = 98765 */ 0x00, 0x00, 0x00, 0x01, 0x81, 0xCD,
@@ -360,7 +319,6 @@ TEST(DLCRMessageParser, ValidDLCRMessage) {
     auto result = parse<nasdaq::DLCRMessage>(raw);
 
     ASSERT_TRUE(result.has_value());
-    EXPECT_EQ((*result)->message_type,               'O');
     EXPECT_EQ((*result)->stock_locate,               5);
     EXPECT_EQ((*result)->tracking_number,            10);
     EXPECT_EQ((*result)->timestamp,                  98765);
@@ -375,8 +333,6 @@ TEST(DLCRMessageParser, ValidDLCRMessage) {
 
 TEST(StockRelatedParser, ValidStockDirectoryMessage) {
     auto raw = make_bytes(
-        /* message size                   */ 0x00, 0x27,
-        /* message_type           = 'R'   */ 0x52, 
         /* stock_locate           = 1     */ 0x00, 0x01, 
         /* tracking_number        = 1     */ 0x00, 0x01, 
         /* timestamp              = 1000  */ 0x00, 0x00, 0x00, 0x00, 0x03, 0xE8,
@@ -399,7 +355,6 @@ TEST(StockRelatedParser, ValidStockDirectoryMessage) {
     auto result = parse<nasdaq::StockDirectory>(raw);
 
     ASSERT_TRUE(result.has_value());
-    EXPECT_EQ((*result)->message_type,                  'R');
     EXPECT_EQ((*result)->stock_locate,                  1);
     EXPECT_EQ((*result)->tracking_number,               1);
     EXPECT_EQ((*result)->timestamp,                     1000);
@@ -419,8 +374,6 @@ TEST(StockRelatedParser, ValidStockDirectoryMessage) {
 
 TEST(StockRelatedParser, ValidStockTradingActionMessage) {
     auto raw = make_bytes(
-        /* message size                   */ 0x00, 0x19,
-        /* message_type           = 'H'   */ 0x48, 
         /* stock_locate           = 50    */ 0x00, 0x32, 
         /* tracking_number        = 100   */ 0x00, 0x64, 
         /* timestamp              = 5555  */ 0x00, 0x00, 0x00, 0x00, 0x15, 0xB3,
@@ -433,7 +386,6 @@ TEST(StockRelatedParser, ValidStockTradingActionMessage) {
     auto result = parse<nasdaq::StockTradingAction>(raw);
 
     ASSERT_TRUE(result.has_value());
-    EXPECT_EQ((*result)->message_type,    'H');
     EXPECT_EQ((*result)->stock_locate,    50);
     EXPECT_EQ((*result)->tracking_number, 100);
     EXPECT_EQ((*result)->timestamp,       5555);
@@ -444,8 +396,6 @@ TEST(StockRelatedParser, ValidStockTradingActionMessage) {
 
 TEST(StockRelatedParser, ValidRegSHOMessage) {
     auto raw = make_bytes(
-        /* message size                   */ 0x00, 0x14,
-        /* message_type           = 'Y'   */ 0x59, 
         /* stock_locate           = 33    */ 0x00, 0x21, 
         /* tracking_number        = 44    */ 0x00, 0x2C, 
         /* timestamp              = 7777  */ 0x00, 0x00, 0x00, 0x00, 0x1E, 0x61,
@@ -456,7 +406,6 @@ TEST(StockRelatedParser, ValidRegSHOMessage) {
     auto result = parse<nasdaq::RegSHORestriction>(raw);
 
     ASSERT_TRUE(result.has_value());
-    EXPECT_EQ((*result)->message_type,    'Y');
     EXPECT_EQ((*result)->stock_locate,    33);
     EXPECT_EQ((*result)->tracking_number, 44);
     EXPECT_EQ((*result)->timestamp,       7777);
@@ -465,8 +414,6 @@ TEST(StockRelatedParser, ValidRegSHOMessage) {
 
 TEST(StockRelatedParser, ValidMarketParticipantPositionMessage) {
     auto raw = make_bytes(
-        /* message size                   */ 0x00, 0x1A,
-        /* message_type           = 'L'   */ 0x4C, 
         /* stock_locate           = 22    */ 0x00, 0x16, 
         /* tracking_number        = 55    */ 0x00, 0x37, 
         /* timestamp              = 8888  */ 0x00, 0x00, 0x00, 0x00, 0x22, 0xB8,
@@ -480,7 +427,6 @@ TEST(StockRelatedParser, ValidMarketParticipantPositionMessage) {
     auto result = parse<nasdaq::MarketParticipationPosition>(raw);
 
     ASSERT_TRUE(result.has_value());
-    EXPECT_EQ((*result)->message_type,               'L');
     EXPECT_EQ((*result)->stock_locate,               22);
     EXPECT_EQ((*result)->tracking_number,            55);
     EXPECT_EQ((*result)->timestamp,                  8888);
@@ -492,8 +438,6 @@ TEST(StockRelatedParser, ValidMarketParticipantPositionMessage) {
 
 TEST(StockRelatedParser, ValidMWCBDeclineLevelMessage) {
     auto raw = make_bytes(
-        /* message size                   */ 0x00, 0x23,
-        /* message_type           = 'V'   */ 0x56, 
         /* stock_locate           = 0     */ 0x00, 0x00, 
         /* tracking_number        = 1     */ 0x00, 0x01, 
         /* timestamp              = 9999  */ 0x00, 0x00, 0x00, 0x00, 0x27, 0x0F,
@@ -505,7 +449,6 @@ TEST(StockRelatedParser, ValidMWCBDeclineLevelMessage) {
     auto result = parse<nasdaq::MWCBDeclineLevelMessage>(raw);
 
     ASSERT_TRUE(result.has_value());
-    EXPECT_EQ((*result)->message_type,    'V');
     EXPECT_EQ((*result)->stock_locate,    0);
     EXPECT_EQ((*result)->tracking_number, 1);
     EXPECT_EQ((*result)->timestamp,       9999);
@@ -516,8 +459,6 @@ TEST(StockRelatedParser, ValidMWCBDeclineLevelMessage) {
 
 TEST(StockRelatedParser, ValidMWCBStatusMessage) {
     auto raw = make_bytes(
-        /* message size                   */ 0x00, 0x0C,
-        /* message_type           = 'W'   */ 0x57, 
         /* stock_locate           = 0     */ 0x00, 0x00, 
         /* tracking_number        = 2     */ 0x00, 0x02, 
         /* timestamp              = 11111 */ 0x00, 0x00, 0x00, 0x00, 0x2B, 0x67,
@@ -527,7 +468,6 @@ TEST(StockRelatedParser, ValidMWCBStatusMessage) {
     auto result = parse<nasdaq::MWCBStatusMessage>(raw);
 
     ASSERT_TRUE(result.has_value());
-    EXPECT_EQ((*result)->message_type,    'W');
     EXPECT_EQ((*result)->stock_locate,    0);
     EXPECT_EQ((*result)->tracking_number, 2);
     EXPECT_EQ((*result)->timestamp,       11111);
@@ -536,8 +476,6 @@ TEST(StockRelatedParser, ValidMWCBStatusMessage) {
 
 TEST(StockRelatedParser, ValidIPOQuotingPeriodUpdateMessage) {
     auto raw = make_bytes(
-        /* message size                   */ 0x00, 0x1C,
-        /* message_type           = 'K'   */ 0x4B, 
         /* stock_locate           = 0     */ 0x00, 0x00, 
         /* tracking_number        = 3     */ 0x00, 0x03, 
         /* timestamp              = 22222 */ 0x00, 0x00, 0x00, 0x00, 0x56, 0xCE,
@@ -550,7 +488,6 @@ TEST(StockRelatedParser, ValidIPOQuotingPeriodUpdateMessage) {
     auto result = parse<nasdaq::QuotePeriodUpdate>(raw);
 
     ASSERT_TRUE(result.has_value());
-    EXPECT_EQ((*result)->message_type,                   'K');
     EXPECT_EQ((*result)->stock_locate,                   0);
     EXPECT_EQ((*result)->tracking_number,                3);
     EXPECT_EQ((*result)->timestamp,                      22222);
@@ -561,8 +498,6 @@ TEST(StockRelatedParser, ValidIPOQuotingPeriodUpdateMessage) {
 
 TEST(StockRelatedParser, ValidLULDAuctionCollarMessage) {
     auto raw = make_bytes(
-        /* message size                   */ 0x00, 0x23,
-        /* message_type           = 'J'   */ 0x4A, 
         /* stock_locate           = 77    */ 0x00, 0x4D, 
         /* tracking_number        = 88    */ 0x00, 0x58, 
         /* timestamp              = 33333 */ 0x00, 0x00, 0x00, 0x00, 0x82, 0x35,
@@ -576,7 +511,6 @@ TEST(StockRelatedParser, ValidLULDAuctionCollarMessage) {
     auto result = parse<nasdaq::LULDAuctionCollar>(raw);
 
     ASSERT_TRUE(result.has_value());
-    EXPECT_EQ((*result)->message_type,                  'J');
     EXPECT_EQ((*result)->stock_locate,                  77);
     EXPECT_EQ((*result)->tracking_number,               88);
     EXPECT_EQ((*result)->timestamp,                     33333);
@@ -588,8 +522,6 @@ TEST(StockRelatedParser, ValidLULDAuctionCollarMessage) {
 
 TEST(StockRelatedParser, ValidOperationalHaltMessage) {
     auto raw = make_bytes(
-        /* message size                   */ 0x00, 0x15,
-        /* message_type           = 'h'   */ 0x68, 
         /* stock_locate           = 99    */ 0x00, 0x63, 
         /* tracking_number        = 111   */ 0x00, 0x6F, 
         /* timestamp              = 44444 */ 0x00, 0x00, 0x00, 0x00, 0xAD, 0x9C,
@@ -601,7 +533,6 @@ TEST(StockRelatedParser, ValidOperationalHaltMessage) {
     auto result = parse<nasdaq::OperationHalt>(raw);
 
     ASSERT_TRUE(result.has_value());
-    EXPECT_EQ((*result)->message_type,            'h');
     EXPECT_EQ((*result)->stock_locate,            99);
     EXPECT_EQ((*result)->tracking_number,         111);
     EXPECT_EQ((*result)->timestamp,               44444);

@@ -5,7 +5,7 @@
 namespace nasdaq {
 
 struct [[gnu::packed]] DLCRMessage {
-    MessageType  message_type; // 'O'
+    static constexpr MessageType MESSAGE_TYPE = 'O';
     LocateCode   stock_locate;
     TrackingNum  tracking_number;
     Timestamp    timestamp;

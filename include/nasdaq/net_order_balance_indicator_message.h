@@ -5,7 +5,7 @@
 namespace nasdaq {
 
 struct [[gnu::packed]] NOIIMessage {
-    MessageType  message_type; // 'I'
+    static constexpr MessageType MESSAGE_TYPE = 'I';
     LocateCode   stock_locate;
     TrackingNum  tracking_number;
     Timestamp    timestamp;

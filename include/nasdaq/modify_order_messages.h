@@ -5,7 +5,7 @@
 namespace nasdaq {
 
 struct [[gnu::packed]] OrderExecutedMessage {
-    MessageType  message_type; // 'E'
+    static constexpr MessageType MESSAGE_TYPE = 'E';
     LocateCode   stock_locate;
     TrackingNum  tracking_number;
     Timestamp    timestamp;
@@ -15,7 +15,7 @@ struct [[gnu::packed]] OrderExecutedMessage {
 };
 
 struct [[gnu::packed]] OrderExecutedWithPriceMessage {
-    MessageType  message_type; // 'C'
+    static constexpr MessageType MESSAGE_TYPE = 'C';
     LocateCode   stock_locate;
     TrackingNum  tracking_number;
     Timestamp    timestamp;
@@ -27,7 +27,7 @@ struct [[gnu::packed]] OrderExecutedWithPriceMessage {
 };
 
 struct [[gnu::packed]] OrderCancelMessage {
-    MessageType  message_type; // 'X'
+    static constexpr MessageType MESSAGE_TYPE = 'X';
     LocateCode   stock_locate;
     TrackingNum  tracking_number;
     Timestamp    timestamp;
@@ -36,7 +36,7 @@ struct [[gnu::packed]] OrderCancelMessage {
 };
 
 struct [[gnu::packed]] OrderDeleteMessage {
-    MessageType  message_type; // 'D'
+    static constexpr MessageType MESSAGE_TYPE = 'D';
     LocateCode   stock_locate;
     TrackingNum  tracking_number;
     Timestamp    timestamp;
@@ -44,7 +44,7 @@ struct [[gnu::packed]] OrderDeleteMessage {
 };
 
 struct [[gnu::packed]] OrderReplaceMessage {
-    MessageType  message_type; // 'U'
+    static constexpr MessageType MESSAGE_TYPE = 'U';
     LocateCode   stock_locate;
     TrackingNum  tracking_number;
     Timestamp    timestamp;

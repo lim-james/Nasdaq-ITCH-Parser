@@ -5,7 +5,7 @@
 namespace nasdaq {
 
 struct [[gnu::packed]] StockDirectory {
-    MessageType  message_type; // 'R'
+    static constexpr MessageType MESSAGE_TYPE = 'R';
     LocateCode   stock_locate;
     TrackingNum  tracking_number;
     Timestamp    timestamp;
@@ -26,7 +26,7 @@ struct [[gnu::packed]] StockDirectory {
 };
 
 struct [[gnu::packed]] StockTradingAction {
-    MessageType  message_type; // 'H'
+    static constexpr MessageType MESSAGE_TYPE = 'H';
     LocateCode   stock_locate;
     TrackingNum  tracking_number;
     Timestamp    timestamp;
@@ -37,7 +37,7 @@ struct [[gnu::packed]] StockTradingAction {
 };
 
 struct [[gnu::packed]] RegSHORestriction {
-    MessageType  message_type; // 'Y'
+    static constexpr MessageType MESSAGE_TYPE = 'Y';
     LocateCode   stock_locate;
     TrackingNum  tracking_number;
     Timestamp    timestamp;
@@ -46,7 +46,7 @@ struct [[gnu::packed]] RegSHORestriction {
 };
 
 struct [[gnu::packed]] MarketParticipationPosition {
-    MessageType  message_type; // 'L'
+    static constexpr MessageType MESSAGE_TYPE = 'L';
     LocateCode   stock_locate;
     TrackingNum  tracking_number;
     Timestamp    timestamp;
@@ -58,7 +58,7 @@ struct [[gnu::packed]] MarketParticipationPosition {
 };
 
 struct [[gnu::packed]] MWCBDeclineLevelMessage {
-    MessageType  message_type; // 'V'
+    static constexpr MessageType MESSAGE_TYPE = 'V';
     LocateCode   stock_locate;
     TrackingNum  tracking_number;
     Timestamp    timestamp;
@@ -68,7 +68,7 @@ struct [[gnu::packed]] MWCBDeclineLevelMessage {
 };
 
 struct [[gnu::packed]] MWCBStatusMessage {
-    MessageType  message_type; // 'W'
+    static constexpr MessageType MESSAGE_TYPE = 'W';
     LocateCode   stock_locate;
     TrackingNum  tracking_number;
     Timestamp    timestamp;
@@ -76,7 +76,7 @@ struct [[gnu::packed]] MWCBStatusMessage {
 };
 
 struct [[gnu::packed]] QuotePeriodUpdate {
-    MessageType  message_type; // 'K'
+    static constexpr MessageType MESSAGE_TYPE = 'K';
     LocateCode   stock_locate;
     TrackingNum  tracking_number;
     Timestamp    timestamp;
@@ -87,7 +87,7 @@ struct [[gnu::packed]] QuotePeriodUpdate {
 };
 
 struct [[gnu::packed]] LULDAuctionCollar {
-    MessageType  message_type; // 'J'
+    static constexpr MessageType MESSAGE_TYPE = 'J';
     LocateCode   stock_locate;
     TrackingNum  tracking_number;
     Timestamp    timestamp;
@@ -99,7 +99,7 @@ struct [[gnu::packed]] LULDAuctionCollar {
 };
 
 struct [[gnu::packed]] OperationHalt {
-    MessageType  message_type; // 'h'
+    static constexpr MessageType MESSAGE_TYPE = 'h';
     LocateCode   stock_locate;
     TrackingNum  tracking_number;
     Timestamp    timestamp;

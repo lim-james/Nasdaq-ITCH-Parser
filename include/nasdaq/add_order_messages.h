@@ -5,7 +5,7 @@
 namespace nasdaq {
 
 struct [[gnu::packed]] AddOrderMessage {
-    MessageType  message_type; // 'A'
+    static constexpr MessageType MESSAGE_TYPE = 'A';
     LocateCode   stock_locate;
     TrackingNum  tracking_number;
     Timestamp    timestamp;
@@ -17,7 +17,7 @@ struct [[gnu::packed]] AddOrderMessage {
 };
 
 struct [[gnu::packed]] AddOrderMPIDMessage {
-    MessageType  message_type; // 'F'
+    static constexpr MessageType MESSAGE_TYPE = 'F';
     LocateCode   stock_locate;
     TrackingNum  tracking_number;
     Timestamp    timestamp;

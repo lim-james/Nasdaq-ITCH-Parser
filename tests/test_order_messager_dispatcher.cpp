@@ -5,8 +5,11 @@
 
 class TestOrderMessageHandler: public nasdaq::ModifyOrderMessageHandler {
 public:
+    bool order_executed_message_called = false;
+    bool order_executed_with_price_message_called = false;
+
     void onOrderExecutedMessage(nasdaq::OrderExecutedMessage* msg) override {
-        EXPECT_EQ(msg->message_type,           'E');
+        order_executed_message_called = true;
         EXPECT_EQ(msg->stock_locate,           42);
         EXPECT_EQ(msg->tracking_number,        67);
         EXPECT_EQ(msg->timestamp,              12345);
@@ -16,7 +19,7 @@ public:
     }
 
     void onOrderExecutedWithPriceMessage(nasdaq::OrderExecutedWithPriceMessage* msg) override {
-        EXPECT_EQ(msg->message_type,           'C');
+        order_executed_with_price_message_called = true;
         EXPECT_EQ(msg->stock_locate,           42);
         EXPECT_EQ(msg->tracking_number,        67);
         EXPECT_EQ(msg->timestamp,              12345);
@@ -45,7 +48,6 @@ public:
 
 TEST(OrderMessageDispatcher, ValidOrderExecutedMessage) {
     auto raw = make_bytes(
-        /* message size                   */ 0x00, 0x1F,
         /* message_type           = 'E'   */ 0x45, 
         /* stock_locate           = 42    */ 0x00, 0x2A, 
         /* tracking_number        = 67    */ 0x00, 0x43, 
@@ -53,7 +55,6 @@ TEST(OrderMessageDispatcher, ValidOrderExecutedMessage) {
         /* order_reference_number = 43567 */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xAA, 0x2F, 
         /* executed_shares        = 100   */ 0x00, 0x00, 0x00, 0x64, 
         /* match_number           = 6790  */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1A, 0x86, 
-        /* message size                   */ 0x00, 0x1F,
         /* message_type           = 'C'   */ 0x43, 
         /* stock_locate           = 42    */ 0x00, 0x2A, 
         /* tracking_number        = 67    */ 0x00, 0x43, 
@@ -73,5 +74,8 @@ TEST(OrderMessageDispatcher, ValidOrderExecutedMessage) {
 
     ptr = dispatcher.feed(ptr);
     dispatcher.feed(ptr);
+
+    EXPECT_TRUE(test_handler.order_executed_message_called);
+    EXPECT_TRUE(test_handler.order_executed_with_price_message_called);
 }
 

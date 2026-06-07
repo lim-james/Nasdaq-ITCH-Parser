@@ -10,19 +10,16 @@ enum class OrderMessageParseError: char {
 };
 
 using buffer_t = std::span<std::byte>;
-using MessageSize = std::uint16_t;
 
 template<typename OrderMessage>
 auto parse(buffer_t buffer) -> std::expected<OrderMessage*, OrderMessageParseError> {
     if (buffer.empty()) 
         return std::unexpected(OrderMessageParseError::NULL_BUFFER);
 
-    constexpr MessageSize MESSAGE_SIZE  = sizeof(OrderMessage); 
-    constexpr std::size_t BUFFER_OFFSET = sizeof(MessageSize);
+    static constexpr auto MESSAGE_SIZE  = sizeof(OrderMessage); 
 
-    const MessageSize buffer_length = *reinterpret_cast<MessageSize*>(buffer.data());
-    if (buffer_length < MESSAGE_SIZE) 
+    if (buffer.size() < MESSAGE_SIZE) 
         return std::unexpected(OrderMessageParseError::INVALID_BUFFER_LENGTH);
     
-    return reinterpret_cast<OrderMessage*>(buffer.data() + BUFFER_OFFSET);
+    return reinterpret_cast<OrderMessage*>(buffer.data());
 }

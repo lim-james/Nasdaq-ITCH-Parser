@@ -5,7 +5,7 @@
 namespace nasdaq {
 
 struct [[gnu::packed]] RetailInterestMessage {
-    MessageType  message_type; // 'N'
+    static constexpr MessageType MESSAGE_TYPE = 'N';
     LocateCode   stock_locate;
     TrackingNum  tracking_number;
     Timestamp    timestamp;

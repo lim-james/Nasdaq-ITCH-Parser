@@ -5,7 +5,7 @@
 namespace nasdaq {
 
 struct [[gnu::packed]] TradeMessage {
-    MessageType  message_type; // 'P'
+    static constexpr MessageType MESSAGE_TYPE = 'P';
     LocateCode   stock_locate;
     TrackingNum  tracking_number;
     Timestamp    timestamp;
@@ -18,7 +18,7 @@ struct [[gnu::packed]] TradeMessage {
 };
 
 struct [[gnu::packed]] CrossTradeMessage {
-    MessageType  message_type; // 'Q'
+    static constexpr MessageType MESSAGE_TYPE = 'Q';
     LocateCode   stock_locate;
     TrackingNum  tracking_number;
     Timestamp    timestamp;
@@ -30,7 +30,7 @@ struct [[gnu::packed]] CrossTradeMessage {
 };
 
 struct [[gnu::packed]] BrokenTradeMessage {
-    MessageType  message_type; // 'B'
+    static constexpr MessageType MESSAGE_TYPE = 'B';
     LocateCode   stock_locate;
     TrackingNum  tracking_number;
     Timestamp    timestamp;

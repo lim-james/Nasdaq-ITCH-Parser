@@ -5,7 +5,7 @@
 namespace nasdaq {
 
 struct [[gnu::packed]] SystemEventMessage {
-    MessageType message_type; // 'S'
+    static constexpr MessageType MESSAGE_TYPE = 'S';
     LocateCode  stock_locate;
     TrackingNum tracking_number;
     Timestamp   timestamp;
