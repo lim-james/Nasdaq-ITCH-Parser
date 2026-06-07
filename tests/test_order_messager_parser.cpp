@@ -8,10 +8,12 @@
 #include "nasdaq/dlcr_message.h"
 #include "nasdaq/retail_interest_message.h"
 #include "nasdaq/trade_messages.h"
+
+#include "helpers.h"
 #include "order_message_parser.h"
 
 TEST(OrderMessageParser, ValidOrderExecutedMessage) {
-    byte_t raw[] = { 
+    auto raw = make_bytes(
         /* message size                   */ 0x00, 0x1F,
         /* message_type           = 'E'   */ 0x45, 
         /* stock_locate           = 42    */ 0x00, 0x2A, 
@@ -20,7 +22,7 @@ TEST(OrderMessageParser, ValidOrderExecutedMessage) {
         /* order_reference_number = 43567 */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xAA, 0x2F, 
         /* executed_shares        = 100   */ 0x00, 0x00, 0x00, 0x64, 
         /* match_number           = 6790  */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1A, 0x86 
-    };
+    );
 
     auto result = parse<nasdaq::OrderExecutedMessage>(raw);
 
@@ -35,7 +37,7 @@ TEST(OrderMessageParser, ValidOrderExecutedMessage) {
 }
 
 TEST(OrderMessageParser, ValidOrderExecutedWithPriceMessage) {
-    byte_t raw[] = { 
+    auto raw = make_bytes(
         /* message size                   */ 0x00, 0x1F,
         /* message_type           = 'C'   */ 0x43, 
         /* stock_locate           = 42    */ 0x00, 0x2A, 
@@ -46,7 +48,7 @@ TEST(OrderMessageParser, ValidOrderExecutedWithPriceMessage) {
         /* match_number           = 6790  */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1A, 0x86,
         /* printable              = 'Y'   */ 0x59,
         /* execution_price        = 98765 */ 0x00, 0x01, 0x81, 0xCD 
-    };
+    );
 
     auto result = parse<nasdaq::OrderExecutedWithPriceMessage>(raw);
 
@@ -63,15 +65,15 @@ TEST(OrderMessageParser, ValidOrderExecutedWithPriceMessage) {
 }
 
 TEST(OrderMessageParser, ValidOrderCancelMessage) {
-    byte_t raw[] = { 
+    auto raw = make_bytes(
         /* message size                   */ 0x00, 0x1F,
         /* message_type           = 'X'   */ 0x58, 
         /* stock_locate           = 42    */ 0x00, 0x2A, 
         /* tracking_number        = 67    */ 0x00, 0x43, 
         /* timestamp              = 12345 */ 0x00, 0x00, 0x00, 0x00, 0x30, 0x39,
         /* order_reference_number = 43567 */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xAA, 0x2F, 
-        /* cancelled_shares       = 100   */ 0x00, 0x00, 0x00, 0x64, 
-    };
+        /* cancelled_shares       = 100   */ 0x00, 0x00, 0x00, 0x64
+    );
 
     auto result = parse<nasdaq::OrderCancelMessage>(raw);
 
@@ -85,14 +87,14 @@ TEST(OrderMessageParser, ValidOrderCancelMessage) {
 }
 
 TEST(OrderMessageParser, ValidOrderDeleteMessage) {
-    byte_t raw[] = { 
+    auto raw = make_bytes(
         /* message size                   */ 0x00, 0x1F,
         /* message_type           = 'D'   */ 0x44, 
         /* stock_locate           = 42    */ 0x00, 0x2A, 
         /* tracking_number        = 67    */ 0x00, 0x43, 
         /* timestamp              = 12345 */ 0x00, 0x00, 0x00, 0x00, 0x30, 0x39,
-        /* order_reference_number = 43567 */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xAA, 0x2F, 
-    };
+        /* order_reference_number = 43567 */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xAA, 0x2F
+    );
 
     auto result = parse<nasdaq::OrderDeleteMessage>(raw);
 
@@ -105,7 +107,7 @@ TEST(OrderMessageParser, ValidOrderDeleteMessage) {
 }
 
 TEST(OrderMessageParser, ValidOrderReplaceMessage) {
-    byte_t raw[] = { 
+    auto raw = make_bytes(
         /* message size                   */ 0x00, 0x1F,
         /* message_type           = 'U'   */ 0x55, 
         /* stock_locate           = 42    */ 0x00, 0x2A, 
@@ -115,7 +117,7 @@ TEST(OrderMessageParser, ValidOrderReplaceMessage) {
         /* new_order_reference_number = 43567 */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xAA, 0x2F, 
         /* shares        = 100   */ 0x00, 0x00, 0x00, 0x64, 
         /* price         = 98765 */ 0x00, 0x01, 0x81, 0xCD 
-    };
+    );
 
     auto result = parse<nasdaq::OrderReplaceMessage>(raw);
 
@@ -131,14 +133,14 @@ TEST(OrderMessageParser, ValidOrderReplaceMessage) {
 }
 
 TEST(SystemMessageParser, ValidSystemEventMessage) {
-    byte_t raw[] = { 
+    auto raw = make_bytes(
         /* message size                   */ 0x00, 0x0C,
         /* message_type           = 'S'   */ 0x53, 
         /* stock_locate           = 0     */ 0x00, 0x00, 
         /* tracking_number        = 1     */ 0x00, 0x01, 
         /* timestamp              = 12345 */ 0x00, 0x00, 0x00, 0x00, 0x30, 0x39,
         /* event_code             = 'O'   */ 0x4F
-    };
+    );
 
     auto result = parse<nasdaq::SystemEventMessage>(raw);
 
@@ -151,7 +153,7 @@ TEST(SystemMessageParser, ValidSystemEventMessage) {
 }
 
 TEST(AddOrderParser, ValidAddOrderMessage) {
-    byte_t raw[] = { 
+    auto raw = make_bytes(
         /* message size                   */ 0x00, 0x24,
         /* message_type           = 'A'   */ 0x41, 
         /* stock_locate           = 100   */ 0x00, 0x64, 
@@ -162,7 +164,7 @@ TEST(AddOrderParser, ValidAddOrderMessage) {
         /* shares                 = 500   */ 0x00, 0x00, 0x01, 0xF4,
         /* stock = "AAPL    "             */ 0x41, 0x41, 0x50, 0x4C, 0x20, 0x20, 0x20, 0x20,
         /* price                  = 150000*/ 0x00, 0x02, 0x49, 0xF0
-    };
+    );
 
     auto result = parse<nasdaq::AddOrderMessage>(raw);
 
@@ -178,7 +180,7 @@ TEST(AddOrderParser, ValidAddOrderMessage) {
 }
 
 TEST(AddOrderParser, ValidAddOrderMPIDMessage) {
-    byte_t raw[] = { 
+    auto raw = make_bytes(
         /* message size                   */ 0x00, 0x28,
         /* message_type           = 'F'   */ 0x46, 
         /* stock_locate           = 100   */ 0x00, 0x64, 
@@ -190,7 +192,7 @@ TEST(AddOrderParser, ValidAddOrderMPIDMessage) {
         /* stock = "TSLA    "             */ 0x54, 0x53, 0x4C, 0x41, 0x20, 0x20, 0x20, 0x20,
         /* price                  = 250000*/ 0x00, 0x03, 0xD0, 0x90,
         /* attribution = "NSDQ"           */ 0x4E, 0x53, 0x44, 0x51
-    };
+    );
 
     auto result = parse<nasdaq::AddOrderMPIDMessage>(raw);
 
@@ -207,7 +209,7 @@ TEST(AddOrderParser, ValidAddOrderMPIDMessage) {
 }
 
 TEST(TradeMessageParser, ValidTradeMessage) {
-    byte_t raw[] = { 
+    auto raw = make_bytes(
         /* message size                   */ 0x00, 0x2C,
         /* message_type           = 'P'   */ 0x50, 
         /* stock_locate           = 50    */ 0x00, 0x32, 
@@ -219,7 +221,7 @@ TEST(TradeMessageParser, ValidTradeMessage) {
         /* stock = "MSFT    "             */ 0x4D, 0x53, 0x46, 0x54, 0x20, 0x20, 0x20, 0x20,
         /* price                  = 320000*/ 0x00, 0x04, 0xE2, 0x00,
         /* match_number           = 99999 */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x86, 0x9F
-    };
+    );
 
     auto result = parse<nasdaq::TradeMessage>(raw);
 
@@ -236,7 +238,7 @@ TEST(TradeMessageParser, ValidTradeMessage) {
 }
 
 TEST(TradeMessageParser, ValidCrossTradeMessage) {
-    byte_t raw[] = { 
+    auto raw = make_bytes(
         /* message size                   */ 0x00, 0x28,
         /* message_type           = 'Q'   */ 0x51, 
         /* stock_locate           = 25    */ 0x00, 0x19, 
@@ -247,7 +249,7 @@ TEST(TradeMessageParser, ValidCrossTradeMessage) {
         /* cross_price            = 280128*/ 0x00, 0x04, 0x46, 0x40,
         /* match_number           = 55555 */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xD9, 0x03,
         /* cross_type             = 'O'   */ 0x4F
-    };
+    );
 
     auto result = parse<nasdaq::CrossTradeMessage>(raw);
 
@@ -263,14 +265,14 @@ TEST(TradeMessageParser, ValidCrossTradeMessage) {
 }
 
 TEST(TradeMessageParser, ValidBrokenTradeMessage) {
-    byte_t raw[] = { 
+    auto raw = make_bytes(
         /* message size                   */ 0x00, 0x13,
         /* message_type           = 'B'   */ 0x42, 
         /* stock_locate           = 10    */ 0x00, 0x0A, 
         /* tracking_number        = 20    */ 0x00, 0x14, 
         /* timestamp              = 67890 */ 0x00, 0x00, 0x00, 0x01, 0x09, 0x32,
         /* match_number           = 77777 */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x2F, 0xD1
-    };
+    );
 
     auto result = parse<nasdaq::BrokenTradeMessage>(raw);
 
@@ -283,7 +285,7 @@ TEST(TradeMessageParser, ValidBrokenTradeMessage) {
 }
 
 TEST(NOIIMessageParser, ValidNOIIMessage) {
-    byte_t raw[] = { 
+    auto raw = make_bytes(
         /* message size                   */ 0x00, 0x32,
         /* message_type           = 'I'   */ 0x49, 
         /* stock_locate           = 30    */ 0x00, 0x1E, 
@@ -298,7 +300,7 @@ TEST(NOIIMessageParser, ValidNOIIMessage) {
         /* current_reference_price= 332532*/ 0x00, 0x05, 0x12, 0xF4,
         /* cross_type             = 'O'   */ 0x4F,
         /* price_variation_ind    = 'L'   */ 0x4C
-    };
+    );
 
     auto result = parse<nasdaq::NOIIMessage>(raw);
 
@@ -318,7 +320,7 @@ TEST(NOIIMessageParser, ValidNOIIMessage) {
 }
 
 TEST(RetailMessageParser, ValidRetailInterestMessage) {
-    byte_t raw[] = { 
+    auto raw = make_bytes(
         /* message size                   */ 0x00, 0x14,
         /* message_type           = 'N'   */ 0x4E, 
         /* stock_locate           = 15    */ 0x00, 0x0F, 
@@ -326,7 +328,7 @@ TEST(RetailMessageParser, ValidRetailInterestMessage) {
         /* timestamp              = 11111 */ 0x00, 0x00, 0x00, 0x00, 0x2B, 0x67,
         /* stock = "NVDA    "             */ 0x4E, 0x56, 0x44, 0x41, 0x20, 0x20, 0x20, 0x20,
         /* interest_flag          = 'A'   */ 0x41
-    };
+    );
 
     auto result = parse<nasdaq::RetailInterestMessage>(raw);
 
@@ -339,7 +341,7 @@ TEST(RetailMessageParser, ValidRetailInterestMessage) {
 }
 
 TEST(DLCRMessageParser, ValidDLCRMessage) {
-    byte_t raw[] = { 
+    auto raw = make_bytes(
         /* message size                   */ 0x00, 0x2F,
         /* message_type           = 'O'   */ 0x4F, 
         /* stock_locate           = 5     */ 0x00, 0x05, 
@@ -353,7 +355,7 @@ TEST(DLCRMessageParser, ValidDLCRMessage) {
         /* near_execution_time    = 345600*/ 0x00, 0x00, 0x00, 0x00, 0x00, 0x05, 0x46, 0x00,
         /* lower_collar           = 450384*/ 0x00, 0x06, 0xDF, 0x50,
         /* upper_collar           = 549616*/ 0x00, 0x08, 0x62, 0xF0
-    };
+    );
 
     auto result = parse<nasdaq::DLCRMessage>(raw);
 
@@ -372,7 +374,7 @@ TEST(DLCRMessageParser, ValidDLCRMessage) {
 }
 
 TEST(StockRelatedParser, ValidStockDirectoryMessage) {
-    byte_t raw[] = { 
+    auto raw = make_bytes(
         /* message size                   */ 0x00, 0x27,
         /* message_type           = 'R'   */ 0x52, 
         /* stock_locate           = 1     */ 0x00, 0x01, 
@@ -392,7 +394,7 @@ TEST(StockRelatedParser, ValidStockDirectoryMessage) {
         /* etp_flag               = 'N'   */ 0x4E,
         /* etp_leverage           = 1     */ 0x00, 0x00, 0x00, 0x01,
         /* inverse_indicator      = 'N'   */ 0x4E
-    };
+    );
 
     auto result = parse<nasdaq::StockDirectory>(raw);
 
@@ -416,7 +418,7 @@ TEST(StockRelatedParser, ValidStockDirectoryMessage) {
 }
 
 TEST(StockRelatedParser, ValidStockTradingActionMessage) {
-    byte_t raw[] = { 
+    auto raw = make_bytes(
         /* message size                   */ 0x00, 0x19,
         /* message_type           = 'H'   */ 0x48, 
         /* stock_locate           = 50    */ 0x00, 0x32, 
@@ -426,7 +428,7 @@ TEST(StockRelatedParser, ValidStockTradingActionMessage) {
         /* trading_state          = 'H'   */ 0x48,
         /* reserved               = ' '   */ 0x20,
         /* reason = "T1  "                */ 0x54, 0x31, 0x20, 0x20
-    };
+    );
 
     auto result = parse<nasdaq::StockTradingAction>(raw);
 
@@ -441,7 +443,7 @@ TEST(StockRelatedParser, ValidStockTradingActionMessage) {
 }
 
 TEST(StockRelatedParser, ValidRegSHOMessage) {
-    byte_t raw[] = { 
+    auto raw = make_bytes(
         /* message size                   */ 0x00, 0x14,
         /* message_type           = 'Y'   */ 0x59, 
         /* stock_locate           = 33    */ 0x00, 0x21, 
@@ -449,7 +451,7 @@ TEST(StockRelatedParser, ValidRegSHOMessage) {
         /* timestamp              = 7777  */ 0x00, 0x00, 0x00, 0x00, 0x1E, 0x61,
         /* stock = "GME     "             */ 0x47, 0x4D, 0x45, 0x20, 0x20, 0x20, 0x20, 0x20,
         /* reg_sho_action         = '1'   */ 0x31
-    };
+    );
 
     auto result = parse<nasdaq::RegSHORestriction>(raw);
 
@@ -462,7 +464,7 @@ TEST(StockRelatedParser, ValidRegSHOMessage) {
 }
 
 TEST(StockRelatedParser, ValidMarketParticipantPositionMessage) {
-    byte_t raw[] = { 
+    auto raw = make_bytes(
         /* message size                   */ 0x00, 0x1A,
         /* message_type           = 'L'   */ 0x4C, 
         /* stock_locate           = 22    */ 0x00, 0x16, 
@@ -473,7 +475,7 @@ TEST(StockRelatedParser, ValidMarketParticipantPositionMessage) {
         /* primary_market_maker   = 'Y'   */ 0x59,
         /* market_maker_mode      = 'N'   */ 0x4E,
         /* market_participant_state= 'A'  */ 0x41
-    };
+    );
 
     auto result = parse<nasdaq::MarketParticipationPosition>(raw);
 
@@ -489,7 +491,7 @@ TEST(StockRelatedParser, ValidMarketParticipantPositionMessage) {
 }
 
 TEST(StockRelatedParser, ValidMWCBDeclineLevelMessage) {
-    byte_t raw[] = { 
+    auto raw = make_bytes(
         /* message size                   */ 0x00, 0x23,
         /* message_type           = 'V'   */ 0x56, 
         /* stock_locate           = 0     */ 0x00, 0x00, 
@@ -498,7 +500,7 @@ TEST(StockRelatedParser, ValidMWCBDeclineLevelMessage) {
         /* level1                         */ 0x00, 0x00, 0x00, 0x00, 0x05, 0xF5, 0xE1, 0x00,
         /* level2                         */ 0x00, 0x00, 0x00, 0x00, 0x0B, 0xEB, 0xC2, 0x00,
         /* level3                         */ 0x00, 0x00, 0x00, 0x00, 0x17, 0xD7, 0x84, 0x00
-    };
+    );
 
     auto result = parse<nasdaq::MWCBDeclineLevelMessage>(raw);
 
@@ -513,14 +515,14 @@ TEST(StockRelatedParser, ValidMWCBDeclineLevelMessage) {
 }
 
 TEST(StockRelatedParser, ValidMWCBStatusMessage) {
-    byte_t raw[] = { 
+    auto raw = make_bytes(
         /* message size                   */ 0x00, 0x0C,
         /* message_type           = 'W'   */ 0x57, 
         /* stock_locate           = 0     */ 0x00, 0x00, 
         /* tracking_number        = 2     */ 0x00, 0x02, 
         /* timestamp              = 11111 */ 0x00, 0x00, 0x00, 0x00, 0x2B, 0x67,
         /* breached_level         = '1'   */ 0x31
-    };
+    );
 
     auto result = parse<nasdaq::MWCBStatusMessage>(raw);
 
@@ -533,7 +535,7 @@ TEST(StockRelatedParser, ValidMWCBStatusMessage) {
 }
 
 TEST(StockRelatedParser, ValidIPOQuotingPeriodUpdateMessage) {
-    byte_t raw[] = { 
+    auto raw = make_bytes(
         /* message size                   */ 0x00, 0x1C,
         /* message_type           = 'K'   */ 0x4B, 
         /* stock_locate           = 0     */ 0x00, 0x00, 
@@ -543,7 +545,7 @@ TEST(StockRelatedParser, ValidIPOQuotingPeriodUpdateMessage) {
         /* ipo_quotation_release_time     */ 0x00, 0x00, 0x8C, 0xA0,
         /* ipo_quotation_release_qual= 'A'*/ 0x41,
         /* ipo_price              = 450384*/ 0x00, 0x06, 0xDF, 0x50
-    };
+    );
 
     auto result = parse<nasdaq::QuotePeriodUpdate>(raw);
 
@@ -558,7 +560,7 @@ TEST(StockRelatedParser, ValidIPOQuotingPeriodUpdateMessage) {
 }
 
 TEST(StockRelatedParser, ValidLULDAuctionCollarMessage) {
-    byte_t raw[] = { 
+    auto raw = make_bytes(
         /* message size                   */ 0x00, 0x23,
         /* message_type           = 'J'   */ 0x4A, 
         /* stock_locate           = 77    */ 0x00, 0x4D, 
@@ -569,7 +571,7 @@ TEST(StockRelatedParser, ValidLULDAuctionCollarMessage) {
         /* upper_auction_collar   = 132000*/ 0x00, 0x02, 0x03, 0xA0,
         /* lower_auction_collar   = 108000*/ 0x00, 0x01, 0xA5, 0xE0,
         /* auction_collar_ext     = 0     */ 0x00, 0x00, 0x00, 0x00
-    };
+    );
 
     auto result = parse<nasdaq::LULDAuctionCollar>(raw);
 
@@ -585,7 +587,7 @@ TEST(StockRelatedParser, ValidLULDAuctionCollarMessage) {
 }
 
 TEST(StockRelatedParser, ValidOperationalHaltMessage) {
-    byte_t raw[] = { 
+    auto raw = make_bytes(
         /* message size                   */ 0x00, 0x15,
         /* message_type           = 'h'   */ 0x68, 
         /* stock_locate           = 99    */ 0x00, 0x63, 
@@ -594,7 +596,7 @@ TEST(StockRelatedParser, ValidOperationalHaltMessage) {
         /* stock = "HOOD    "             */ 0x48, 0x4F, 0x4F, 0x44, 0x20, 0x20, 0x20, 0x20,
         /* market_code            = 'Q'   */ 0x51,
         /* operational_halt_action= 'H'   */ 0x48
-    };
+    );
 
     auto result = parse<nasdaq::OperationHalt>(raw);
 

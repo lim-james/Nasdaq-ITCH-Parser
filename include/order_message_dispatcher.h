@@ -2,6 +2,7 @@
 
 #include <unordered_map>
 #include <functional>
+#include <span>
 
 #include "nasdaq/handlers/dlcr_message_handler.h"
 #include "nasdaq/handlers/net_order_balance_indicator_message_handler.h"
@@ -16,12 +17,13 @@
 
 #include "order_message_parser.h"
 
-using byte_t = unsigned char;
-
 class OrderMessageDispatcher {
+
+    using buffer_t = std::span<std::byte>;
+
 private:
 
-    using DispatcherFn = std::function<MessageSize(byte_t*)>;
+    using DispatcherFn = std::function<buffer_t(buffer_t)>;
 
     std::unordered_map<char, DispatcherFn> dispatchers_;
 
@@ -103,14 +105,15 @@ public:
         noii_message_handlers_.push_back(&handler);
     }
 
-    MessageSize feed(byte_t* buffer) {
-        const char message_type = *reinterpret_cast<char*>(buffer + sizeof(MessageSize));
+    buffer_t feed(buffer_t buffer) {
+        const char message_type = *reinterpret_cast<char*>(buffer.data() + sizeof(MessageSize));
         
         auto it = dispatchers_.find(message_type);
         if (it == dispatchers_.end())
-            return sizeof(MessageSize);
+            return buffer;
 
-        return it->second(buffer) + sizeof(MessageSize);
+        auto [_, dispatcher] = *it;
+        return dispatcher(buffer);
     }
 
 private:
@@ -128,7 +131,7 @@ private:
 
     template<auto HandlerFn>
     void addDLCRDispatcher(char message_type) {
-        dispatchers_[message_type] = [this](byte_t* buffer) {
+        dispatchers_[message_type] = [this](buffer_t buffer) {
             return this->dispatchMessage<
                 HandlerFn,
                 &OrderMessageDispatcher::dlcr_message_handlers_
@@ -138,7 +141,7 @@ private:
 
     template<auto HandlerFn>
     void addTradeDispatcher(char message_type) {
-        dispatchers_[message_type] = [this](byte_t* buffer) {
+        dispatchers_[message_type] = [this](buffer_t buffer) {
             return this->dispatchMessage<
                 HandlerFn,
                 &OrderMessageDispatcher::trade_message_handlers_
@@ -148,7 +151,7 @@ private:
 
     template<auto HandlerFn>
     void addAddOrderDispatcher(char message_type) {
-        dispatchers_[message_type] = [this](byte_t* buffer) {
+        dispatchers_[message_type] = [this](buffer_t buffer) {
             return this->dispatchMessage<
                 HandlerFn,
                 &OrderMessageDispatcher::add_order_message_handlers_
@@ -158,7 +161,7 @@ private:
 
     template<auto HandlerFn>
     void addSystemEventDispatcher(char message_type) {
-        dispatchers_[message_type] = [this](byte_t* buffer) {
+        dispatchers_[message_type] = [this](buffer_t buffer) {
             return this->dispatchMessage<
                 HandlerFn,
                 &OrderMessageDispatcher::system_event_message_handler_
@@ -168,7 +171,7 @@ private:
 
     template<auto HandlerFn>
     void addModifyOrderDispatcher(char message_type) {
-        dispatchers_[message_type] = [this](byte_t* buffer) {
+        dispatchers_[message_type] = [this](buffer_t buffer) {
             return this->dispatchMessage<
                 HandlerFn,
                 &OrderMessageDispatcher::modify_order_message_handlers_
@@ -178,7 +181,7 @@ private:
 
     template<auto HandlerFn>
     void addStockRelatedDispatcher(char message_type) {
-        dispatchers_[message_type] = [this](byte_t* buffer) {
+        dispatchers_[message_type] = [this](buffer_t buffer) {
             return this->dispatchMessage<
                 HandlerFn,
                 &OrderMessageDispatcher::stock_related_message_handlers_
@@ -188,7 +191,7 @@ private:
 
     template<auto HandlerFn>
     void addRetailInterestDispatcher(char message_type) {
-        dispatchers_[message_type] = [this](byte_t* buffer) {
+        dispatchers_[message_type] = [this](buffer_t buffer) {
             return this->dispatchMessage<
                 HandlerFn,
                 &OrderMessageDispatcher::retail_interest_message_handlers_
@@ -198,7 +201,7 @@ private:
 
     template<auto HandlerFn>
     void addNOIIDispatcher(char message_type) {
-        dispatchers_[message_type] = [this](byte_t* buffer) {
+        dispatchers_[message_type] = [this](buffer_t buffer) {
             return this->dispatchMessage<
                 HandlerFn,
                 &OrderMessageDispatcher::noii_message_handlers_
@@ -207,10 +210,10 @@ private:
     }
 
     template<auto HandlerFn, auto HandlersPtr>
-    MessageSize dispatchMessage(byte_t* buffer) {
+    buffer_t dispatchMessage(buffer_t buffer) {
         using MessageT = extract_message_type<decltype(HandlerFn)>::type;
         if (auto message = parse<MessageT>(buffer); message.has_value()) 
             for (auto handler: this->*HandlersPtr) ((*handler).*HandlerFn)(*message);
-        return sizeof(MessageT);
+        return buffer.subspan(sizeof(MessageT));
     }
 };

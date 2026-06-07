@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <print>
 
+#include "helpers.h"
 #include "order_message_dispatcher.h"
 
 class TestOrderMessageHandler: public nasdaq::ModifyOrderMessageHandler {
@@ -44,7 +45,7 @@ public:
 // 00 1F 45 00 2A 00 43 00 00 00 00 30 39 00 00 00 00 00 00 AA 2F 00 00 00 64 00 00 00 00 00 00 1A 86
 
 TEST(OrderMessageDispatcher, ValidOrderExecutedMessage) {
-    byte_t raw[] = { 
+    auto raw = make_bytes(
         /* message size                   */ 0x00, 0x1F,
         /* message_type           = 'E'   */ 0x45, 
         /* stock_locate           = 42    */ 0x00, 0x2A, 
@@ -63,15 +64,15 @@ TEST(OrderMessageDispatcher, ValidOrderExecutedMessage) {
         /* match_number           = 6790  */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1A, 0x86,
         /* printable              = 'Y'   */ 0x59,
         /* execution_price        = 98765 */ 0x00, 0x01, 0x81, 0xCD 
-    };
+    );
 
     TestOrderMessageHandler test_handler{};
     OrderMessageDispatcher dispatcher{};
     dispatcher.subscribe(test_handler);
 
-    byte_t* ptr = raw;
+    buffer_t ptr = raw;
 
-    ptr += dispatcher.feed(ptr);
+    ptr = dispatcher.feed(ptr);
     dispatcher.feed(ptr);
 }
 
