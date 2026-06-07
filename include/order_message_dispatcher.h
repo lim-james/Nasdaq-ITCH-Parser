@@ -4,6 +4,7 @@
 #include <functional>
 #include <span>
 
+#include "nasdaq/type.h"
 #include "nasdaq/handlers/dlcr_message_handler.h"
 #include "nasdaq/handlers/net_order_balance_indicator_message_handler.h"
 #include "nasdaq/handlers/net_order_balance_indicator_message_handler.h"
@@ -41,36 +42,36 @@ public:
     OrderMessageDispatcher() {
         using namespace nasdaq;
 
-        addDLCRDispatcher<&DLCRMessageHandler::onDLCRMessage>('O');
+        addDispatcher<'O', &DLCRMessageHandler::onDLCRMessage, &OrderMessageDispatcher::dlcr_message_handlers_>();
 
-        addTradeDispatcher<&TradeMessageHandler::onTradeMessage>('P');
-        addTradeDispatcher<&TradeMessageHandler::onCrossTradeMessage>('Q');
-        addTradeDispatcher<&TradeMessageHandler::onBrokenTradeMessage>('B');
+        addDispatcher<'P', &TradeMessageHandler::onTradeMessage, &OrderMessageDispatcher::trade_message_handlers_>();
+        addDispatcher<'Q', &TradeMessageHandler::onCrossTradeMessage, &OrderMessageDispatcher::trade_message_handlers_>();
+        addDispatcher<'B', &TradeMessageHandler::onBrokenTradeMessage, &OrderMessageDispatcher::trade_message_handlers_>();
 
-        addAddOrderDispatcher<&AddOrderMessageHandler::onAddOrderMessage>('A');
-        addAddOrderDispatcher<&AddOrderMessageHandler::onAddOrderMPIDMessage>('F');
+        addDispatcher<'A', &AddOrderMessageHandler::onAddOrderMessage, &OrderMessageDispatcher::add_order_message_handlers_>();
+        addDispatcher<'F', &AddOrderMessageHandler::onAddOrderMPIDMessage, &OrderMessageDispatcher::add_order_message_handlers_>();
 
-        addSystemEventDispatcher<&SystemEventMessageHandler::onSystemEventMessage>('S');
+        addDispatcher<'S', &SystemEventMessageHandler::onSystemEventMessage, &OrderMessageDispatcher::system_event_message_handler_>();
 
-        addModifyOrderDispatcher<&ModifyOrderMessageHandler::onOrderExecutedMessage>('E');
-        addModifyOrderDispatcher<&ModifyOrderMessageHandler::onOrderExecutedWithPriceMessage>('C');
-        addModifyOrderDispatcher<&ModifyOrderMessageHandler::onOrderCancelMessage>('X');
-        addModifyOrderDispatcher<&ModifyOrderMessageHandler::onOrderDeleteMessage>('D');
-        addModifyOrderDispatcher<&ModifyOrderMessageHandler::onOrderReplaceMessage>('U');
+        addDispatcher<'E', &ModifyOrderMessageHandler::onOrderExecutedMessage, &OrderMessageDispatcher::modify_order_message_handlers_>();
+        addDispatcher<'C', &ModifyOrderMessageHandler::onOrderExecutedWithPriceMessage, &OrderMessageDispatcher::modify_order_message_handlers_>();
+        addDispatcher<'X', &ModifyOrderMessageHandler::onOrderCancelMessage, &OrderMessageDispatcher::modify_order_message_handlers_>();
+        addDispatcher<'D', &ModifyOrderMessageHandler::onOrderDeleteMessage, &OrderMessageDispatcher::modify_order_message_handlers_>();
+        addDispatcher<'U', &ModifyOrderMessageHandler::onOrderReplaceMessage, &OrderMessageDispatcher::modify_order_message_handlers_>();
 
-        addStockRelatedDispatcher<&StockRelatedMessageHandler::onStockDirectory>('R');
-        addStockRelatedDispatcher<&StockRelatedMessageHandler::onStockTradingAction>('H');
-        addStockRelatedDispatcher<&StockRelatedMessageHandler::onRegSHORestriction>('Y');
-        addStockRelatedDispatcher<&StockRelatedMessageHandler::onMarketParticipationPosition>('L');
-        addStockRelatedDispatcher<&StockRelatedMessageHandler::onMWCBDeclineLevelMessage>('V');
-        addStockRelatedDispatcher<&StockRelatedMessageHandler::onMWCBStatusMessage>('W');
-        addStockRelatedDispatcher<&StockRelatedMessageHandler::onQuotePeriodUpdate>('K');
-        addStockRelatedDispatcher<&StockRelatedMessageHandler::onLULDAuctionCollar>('J');
-        addStockRelatedDispatcher<&StockRelatedMessageHandler::onOperationHalt>('h');
+        addDispatcher<'R', &StockRelatedMessageHandler::onStockDirectory, &OrderMessageDispatcher::stock_related_message_handlers_>();
+        addDispatcher<'H', &StockRelatedMessageHandler::onStockTradingAction, &OrderMessageDispatcher::stock_related_message_handlers_>();
+        addDispatcher<'Y', &StockRelatedMessageHandler::onRegSHORestriction, &OrderMessageDispatcher::stock_related_message_handlers_>();
+        addDispatcher<'L', &StockRelatedMessageHandler::onMarketParticipationPosition, &OrderMessageDispatcher::stock_related_message_handlers_>();
+        addDispatcher<'V', &StockRelatedMessageHandler::onMWCBDeclineLevelMessage, &OrderMessageDispatcher::stock_related_message_handlers_>();
+        addDispatcher<'W', &StockRelatedMessageHandler::onMWCBStatusMessage, &OrderMessageDispatcher::stock_related_message_handlers_>();
+        addDispatcher<'K', &StockRelatedMessageHandler::onQuotePeriodUpdate, &OrderMessageDispatcher::stock_related_message_handlers_>();
+        addDispatcher<'J', &StockRelatedMessageHandler::onLULDAuctionCollar, &OrderMessageDispatcher::stock_related_message_handlers_>();
+        addDispatcher<'h', &StockRelatedMessageHandler::onOperationHalt, &OrderMessageDispatcher::stock_related_message_handlers_>();
 
-        addRetailInterestDispatcher<&RetailInterestMessageHandler::onRetailInterestMessage>('N');
+        addDispatcher<'N', &RetailInterestMessageHandler::onRetailInterestMessage, &OrderMessageDispatcher::retail_interest_message_handlers_>();
 
-        addNOIIDispatcher<&nasdaq::NOIIMessageHandler::onNOIIMessage>('I');
+        addDispatcher<'I', &nasdaq::NOIIMessageHandler::onNOIIMessage, &OrderMessageDispatcher::noii_message_handlers_>();
     }
 
     void subscribe(nasdaq::DLCRMessageHandler& handler) {
@@ -106,14 +107,16 @@ public:
     }
 
     buffer_t feed(buffer_t buffer) {
-        const char message_type = *reinterpret_cast<char*>(buffer.data() + sizeof(MessageSize));
+        static constexpr auto MESSAGE_HEADER_SIZE = sizeof(nasdaq::MessageType);
+
+        const auto message_type = *reinterpret_cast<nasdaq::MessageType*>(buffer.data());
         
         auto it = dispatchers_.find(message_type);
         if (it == dispatchers_.end())
             return buffer;
 
         auto [_, dispatcher] = *it;
-        return dispatcher(buffer);
+        return dispatcher(buffer.subspan(MESSAGE_HEADER_SIZE));
     }
 
 private:
@@ -129,83 +132,10 @@ private:
         using type = MessageT;
     };
 
-    template<auto HandlerFn>
-    void addDLCRDispatcher(char message_type) {
+    template<char message_type, auto HandlerFn, auto handlers>
+    void addDispatcher() {
         dispatchers_[message_type] = [this](buffer_t buffer) {
-            return this->dispatchMessage<
-                HandlerFn,
-                &OrderMessageDispatcher::dlcr_message_handlers_
-            >(buffer);
-        };
-    }
-
-    template<auto HandlerFn>
-    void addTradeDispatcher(char message_type) {
-        dispatchers_[message_type] = [this](buffer_t buffer) {
-            return this->dispatchMessage<
-                HandlerFn,
-                &OrderMessageDispatcher::trade_message_handlers_
-            >(buffer);
-        };
-    }
-
-    template<auto HandlerFn>
-    void addAddOrderDispatcher(char message_type) {
-        dispatchers_[message_type] = [this](buffer_t buffer) {
-            return this->dispatchMessage<
-                HandlerFn,
-                &OrderMessageDispatcher::add_order_message_handlers_
-            >(buffer);
-        };
-    }
-
-    template<auto HandlerFn>
-    void addSystemEventDispatcher(char message_type) {
-        dispatchers_[message_type] = [this](buffer_t buffer) {
-            return this->dispatchMessage<
-                HandlerFn,
-                &OrderMessageDispatcher::system_event_message_handler_
-            >(buffer);
-        };
-    }
-
-    template<auto HandlerFn>
-    void addModifyOrderDispatcher(char message_type) {
-        dispatchers_[message_type] = [this](buffer_t buffer) {
-            return this->dispatchMessage<
-                HandlerFn,
-                &OrderMessageDispatcher::modify_order_message_handlers_
-            >(buffer);
-        };
-    }
-
-    template<auto HandlerFn>
-    void addStockRelatedDispatcher(char message_type) {
-        dispatchers_[message_type] = [this](buffer_t buffer) {
-            return this->dispatchMessage<
-                HandlerFn,
-                &OrderMessageDispatcher::stock_related_message_handlers_
-            >(buffer);
-        };
-    }
-
-    template<auto HandlerFn>
-    void addRetailInterestDispatcher(char message_type) {
-        dispatchers_[message_type] = [this](buffer_t buffer) {
-            return this->dispatchMessage<
-                HandlerFn,
-                &OrderMessageDispatcher::retail_interest_message_handlers_
-            >(buffer);
-        };
-    }
-
-    template<auto HandlerFn>
-    void addNOIIDispatcher(char message_type) {
-        dispatchers_[message_type] = [this](buffer_t buffer) {
-            return this->dispatchMessage<
-                HandlerFn,
-                &OrderMessageDispatcher::noii_message_handlers_
-            >(buffer);
+            return dispatchMessage<HandlerFn, handlers>(buffer);
         };
     }
 
